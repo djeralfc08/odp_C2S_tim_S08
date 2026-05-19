@@ -2,46 +2,64 @@ import { type ReactNode } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/auth/useAuthHook";
 
-// TODO: Update nav items to match your routes and roles
 const userNav = [
-  { to: "/dashboard", label: "Dashboard", icon: "⬡" },
-  // add more user routes here
+  { to: "/dashboard",   label: "Dashboard",    icon: "⊞" },
+  { to: "/teams",       label: "Moji timovi",   icon: "◎" },
+  { to: "/matches",     label: "Moji mečevi",   icon: "⚔" },
+  { to: "/watchlist",   label: "Watchlist",     icon: "★" },
+  { to: "/tournaments", label: "Turniri",       icon: "🏆" },
+  { to: "/games",       label: "Igre",          icon: "🎮" },
+  { to: "/profile",     label: "Profil",        icon: "◉" },
 ];
+
 const adminNav = [
-  { to: "/admin",       label: "Dashboard", icon: "⬡" },
-  { to: "/admin/users", label: "Users",     icon: "◎" },
-  // add more admin routes here
+  { to: "/admin",                        label: "Dashboard",  icon: "⊞" },
+  { to: "/admin/tournaments",            label: "Turniri",    icon: "🏆" },
+  { to: "/admin/games",                  label: "Igre",       icon: "🎮" },
+  { to: "/admin/matches",                label: "Mečevi",     icon: "⚔" },
+  { to: "/admin/users",                  label: "Korisnici",  icon: "◎" },
+  { to: "/admin/health",                 label: "Health",     icon: "◈" },
+  { to: "/admin/audit",                  label: "Audit log",  icon: "≡" },
+];
+
+const guestNav = [
+  { to: "/tournaments", label: "Turniri", icon: "🏆" },
+  { to: "/games",       label: "Igre",    icon: "🎮" },
 ];
 
 export function Layout({ children }: { children: ReactNode }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
-  const nav = user?.role === "admin" ? adminNav : userNav;
+  const nav = user?.role === "admin" ? adminNav : user ? userNav : guestNav;
 
   return (
-    <div className="flex min-h-screen bg-[#080808]">
-      <aside className="w-56 shrink-0 border-r border-white/5 flex flex-col bg-[#0d0d0d]">
+    <div className="flex min-h-screen bg-gray-50">
+      <aside className="shrink-0 border-r border-gray-200 flex flex-col bg-white shadow-sm" style={{ width: 220 }}>
         {/* Logo */}
-        <div className="px-5 h-16 flex items-center border-b border-white/5 gap-3">
-          <div className="w-7 h-7 rounded-lg bg-white/8 border border-white/12 flex items-center justify-center">
-            <span className="text-white/50 text-xs">◈</span>
+        <div className="px-5 h-16 flex items-center border-b border-gray-200 gap-3">
+          <div className="w-8 h-8 rounded-lg bg-emerald-500 flex items-center justify-center shadow-sm">
+            <span className="text-white text-sm font-bold">PG</span>
           </div>
           <div>
-            {/* TODO: Replace with your app name */}
-            <p className="text-sm font-semibold text-white tracking-tight">AppName</p>
-            <p className="text-[10px] text-white/25 uppercase tracking-widest">{user?.role}</p>
+            <p className="text-sm font-bold text-gray-900 tracking-tight">PulseGrid</p>
+            <p className="text-[10px] text-gray-400 uppercase tracking-widest">
+              {user?.role === "admin" ? "Admin" : user ? "Igrač" : "Gost"}
+            </p>
           </div>
         </div>
 
         {/* Nav */}
         <nav className="flex-1 py-4 px-3 flex flex-col gap-0.5">
           {nav.map((item) => (
-            <NavLink key={item.to} to={item.to} end
+            <NavLink
+              key={item.to}
+              to={item.to}
+              end={item.to === "/admin" || item.to === "/dashboard"}
               className={({ isActive }) =>
                 `flex items-center gap-3 px-3 py-2.5 rounded-xl text-sm transition-all ${
                   isActive
-                    ? "bg-white/8 text-white border border-white/12"
-                    : "text-white/35 hover:text-white/70 hover:bg-white/4 border border-transparent"
+                    ? "bg-emerald-50 text-emerald-700 border border-emerald-200 font-medium"
+                    : "text-gray-500 hover:text-gray-800 hover:bg-gray-100 border border-transparent"
                 }`
               }
             >
@@ -51,25 +69,36 @@ export function Layout({ children }: { children: ReactNode }) {
           ))}
         </nav>
 
-        {/* User */}
-        <div className="border-t border-white/5 px-4 py-4">
-          <div className="flex items-center gap-3 mb-3">
-            <div className="w-7 h-7 rounded-full bg-white/6 border border-white/10 flex items-center justify-center">
-              <span className="text-xs text-white/40 font-medium">{user?.username?.[0]?.toUpperCase()}</span>
-            </div>
-            <div className="min-w-0">
-              <p className="text-xs font-medium text-white/70 truncate">{user?.username}</p>
-            </div>
-          </div>
-          <button onClick={() => { logout(); navigate("/login"); }}
-            className="text-xs text-white/20 hover:text-white/50 transition-colors w-full text-left">
-            Sign out →
-          </button>
+        {/* User section */}
+        <div className="border-t border-gray-200 px-4 py-4">
+          {user ? (
+            <>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-8 h-8 rounded-full bg-emerald-100 border border-emerald-200 flex items-center justify-center">
+                  <span className="text-xs text-emerald-700 font-semibold">{user.username?.[0]?.toUpperCase()}</span>
+                </div>
+                <div className="min-w-0">
+                  <p className="text-xs font-semibold text-gray-800 truncate">{user.username}</p>
+                  <p className="text-[10px] text-gray-400">{user.role}</p>
+                </div>
+              </div>
+              <button
+                onClick={() => { logout(); navigate("/login"); }}
+                className="text-xs text-gray-400 hover:text-red-500 transition-colors w-full text-left"
+              >
+                Odjavi se →
+              </button>
+            </>
+          ) : (
+            <NavLink to="/login" className="text-xs text-emerald-600 hover:text-emerald-700 transition-colors font-medium">
+              Prijavi se →
+            </NavLink>
+          )}
         </div>
       </aside>
 
-      <main className="flex-1 overflow-auto">
-        <div className="max-w-5xl mx-auto px-8 py-8">{children}</div>
+      <main className="flex-1 overflow-auto bg-gray-50">
+        <div className="max-w-6xl mx-auto px-8 py-8">{children}</div>
       </main>
     </div>
   );
