@@ -72,14 +72,25 @@ docker cp docker/setup-replication.sh project_master:/setup.sh
 docker exec project_master sh /setup.sh
 ```
 
-### 3. Start the server
+### 3. Start the server (load balancer + 3 API instances)
 
 ```bash
 cd server
 cp .env.example .env   # fill in your values
 npm install
-npm run dev
+npm run dev:lb         # gateway :4000 → API :3001,:3002,:3003
 ```
+
+Single API only (no load balancer): `npm run dev` (uses `PORT` from `.env`).
+
+Frontend must use the **gateway**: `VITE_API_URL=http://localhost:4000/api/v1/`
+
+| Script | Description |
+|--------|-------------|
+| `npm run dev:lb` | Gateway + 3 API instances (recommended) |
+| `npm run dev:gateway` | Load balancer gateway only (`:4000`) |
+| `npm run dev:api1` | API instance on `:3001` |
+| `LB_STRATEGY` | `round_robin` \| `weighted` \| `least_connections` \| `ip_hash` |
 
 ### 4. Start the client
 

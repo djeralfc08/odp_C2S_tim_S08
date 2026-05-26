@@ -3,6 +3,7 @@ import { NodeStatus } from "../enums/NodeStatus";
 export class DbNode {
   public status: NodeStatus    = NodeStatus.OFFLINE;
   public lastCheck: Date       = new Date();
+  public latencyMs: number | null = null;
   public successfulWrites: number = 0;
   public failedWrites: number  = 0;
 

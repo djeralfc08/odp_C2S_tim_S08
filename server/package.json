@@ -4,21 +4,31 @@
   "main": "dist/src/index.js",
   "scripts": {
     "start": "node dist/src/index.js",
+    "start:gateway": "node dist/src/gateway.js",
     "dev": "nodemon --exec ts-node src/index.ts",
+    "dev:api1": "cross-env PORT=3001 nodemon --exec ts-node src/index.ts",
+    "dev:api2": "cross-env PORT=3002 nodemon --exec ts-node src/index.ts",
+    "dev:api3": "cross-env PORT=3003 nodemon --exec ts-node src/index.ts",
+    "dev:gateway": "cross-env PORT=4000 nodemon --exec ts-node src/gateway.ts",
+    "dev:lb": "concurrently -n api1,api2,api3,gw -c blue,green,yellow,magenta \"npm run dev:api1\" \"npm run dev:api2\" \"npm run dev:api3\" \"npm run dev:gateway\"",
     "build": "tsc",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
     "bcryptjs": "^3.0.3",
+    "concurrently": "^9.2.1",
     "cors": "^2.8.6",
+    "cross-env": "^10.1.0",
     "dotenv": "^17.3.1",
     "express": "^5.2.1",
+    "http-proxy-middleware": "^4.0.0",
     "jsonwebtoken": "^9.0.3",
     "mysql2": "^3.19.1"
   },
   "devDependencies": {
     "@types/cors": "^2.8.19",
     "@types/express": "^5.0.6",
+    "@types/http-proxy-middleware": "^0.19.3",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^25.5.0",
     "nodemon": "^3.1.14",
