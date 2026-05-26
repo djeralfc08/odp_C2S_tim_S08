@@ -49,7 +49,7 @@ function AdminRoute({ children }: { children: ReactNode }) {
 
 function UserRoute({ children }: { children: ReactNode }) {
   return (
-    <ProtectedRoute requiredRole="user">
+    <ProtectedRoute requiredRole="player">
       <WithLayout>{children}</WithLayout>
     </ProtectedRoute>
   );
