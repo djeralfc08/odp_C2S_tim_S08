@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { usePageTitle } from "../../hooks/usePageTitle";
 import { gamesApi } from "../../api_services/games/GamesAPIService";
 import { useGames } from "../../hooks/games/useGames";
 import type { CreateGameDto } from "../../types/game";
@@ -52,6 +53,7 @@ function GameForm({ initial, onSubmit, onClose, loading, error, title }: GameFor
 }
 
 export function AdminGamesPage() {
+  usePageTitle("Admin | Igre");
   const { games, loading, error, reload } = useGames();
   const [msg, setMsg] = useState<string | null>(null);
   const [msgType, setMsgType] = useState<"success" | "error">("success");

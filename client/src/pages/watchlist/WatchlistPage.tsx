@@ -1,10 +1,12 @@
 import { Link } from "react-router-dom";
+import { usePageTitle } from "../../hooks/usePageTitle";
 import { tournamentsApi } from "../../api_services/tournaments/TournamentsAPIService";
 import { useWatchlist } from "../../hooks/tournaments/useTournaments";
 import { PageHeader, StatusBadge, FormatBadge, Spinner, Empty, ErrorBox, Btn } from "../../components/ui/UI";
 import { useState } from "react";
 
 export function WatchlistPage() {
+  usePageTitle("Watchlist");
   const { tournaments, loading, error, reload } = useWatchlist();
   const [removing, setRemoving] = useState<number | null>(null);
 

@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
+import { usePageTitle } from "../../hooks/usePageTitle";
 import { useParams } from "react-router-dom";
 import { teamsApi } from "../../api_services/teams/TeamsAPIService";
 import type { TeamDetail } from "../../types/team";
 import { PageHeader, Spinner, ErrorBox, Card, RoleBadge } from "../../components/ui/UI";
 
 export function TeamDetailPage() {
+  usePageTitle("Tim");
   const { id } = useParams<{ id: string }>();
   const [team, setTeam] = useState<TeamDetail | null>(null);
   const [loading, setLoading] = useState(true);

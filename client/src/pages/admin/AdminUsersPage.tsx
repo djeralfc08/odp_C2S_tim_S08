@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import { usePageTitle } from "../../hooks/usePageTitle";
 import { usersApi, type UserDto } from "../../api_services/users/UsersAPIService";
 import {
   PageHeader, Table, TableHead, RoleBadge, Empty, ErrorBox, SuccessBox,
@@ -6,6 +7,7 @@ import {
 } from "../../components/ui/UI";
 
 export function AdminUsersPage() {
+  usePageTitle("Admin | Korisnici");
   const [users, setUsers] = useState<UserDto[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

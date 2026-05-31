@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { usePageTitle } from "../../hooks/usePageTitle";
 import { Link } from "react-router-dom";
 import { teamsApi } from "../../api_services/teams/TeamsAPIService";
 import { useMyTeams } from "../../hooks/teams/useTeams";
@@ -52,6 +53,7 @@ function CreateTeamModal({ onClose, onCreated }: { onClose: () => void; onCreate
 }
 
 export function TeamsPage() {
+  usePageTitle("Moji timovi");
   const { teams, loading, error, reload } = useMyTeams();
   const [showCreate, setShowCreate] = useState(false);
   const [successMsg, setSuccessMsg] = useState<string | null>(null);

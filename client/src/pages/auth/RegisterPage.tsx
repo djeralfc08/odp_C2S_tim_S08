@@ -3,8 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { RegisterForm } from "../../components/auth/RegisterForm";
 import { authApi } from "../../api_services/auth/AuthAPIService";
 import { useAuth } from "../../hooks/auth/useAuthHook";
+import { usePageTitle } from "../../hooks/usePageTitle";
 
 export default function RegisterPage() {
+  usePageTitle("Registracija");
   const { isAuthenticated, user } = useAuth();
   const navigate = useNavigate();
 

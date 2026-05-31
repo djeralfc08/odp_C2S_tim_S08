@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { usePageTitle } from "../../hooks/usePageTitle";
 import { useParams } from "react-router-dom";
 import { matchesApi } from "../../api_services/matches/MatchesAPIService";
 import { useAuth } from "../../hooks/auth/useAuthHook";
@@ -8,6 +9,7 @@ import {
 } from "../../components/ui/UI";
 
 export function MatchDetailPage() {
+  usePageTitle("Detalji meca");
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
   const [match, setMatch] = useState<MatchDetail | null>(null);

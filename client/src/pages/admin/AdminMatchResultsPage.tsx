@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { usePageTitle } from "../../hooks/usePageTitle";
 import { matchesApi } from "../../api_services/matches/MatchesAPIService";
 import { useTournaments } from "../../hooks/tournaments/useTournaments";
 import type { Match } from "../../types/match";
@@ -7,6 +8,7 @@ import {
 } from "../../components/ui/UI";
 
 export function AdminMatchResultsPage() {
+  usePageTitle("Admin | Rezultati");
   const { tournaments } = useTournaments();
   const [selectedTournament, setSelectedTournament] = useState("");
   const [matches, setMatches] = useState<Match[]>([]);

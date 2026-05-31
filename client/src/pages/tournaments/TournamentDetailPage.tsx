@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { usePageTitle } from "../../hooks/usePageTitle";
 import { useParams, useNavigate } from "react-router-dom";
 import { tournamentsApi } from "../../api_services/tournaments/TournamentsAPIService";
 import { useTournamentMatches } from "../../hooks/matches/useMatches";
@@ -12,6 +13,7 @@ import {
 import { BracketDiagram } from "../../components/bracket/BracketDiagram";
 
 export function TournamentDetailPage() {
+  usePageTitle("Turnir");
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
   const navigate = useNavigate();

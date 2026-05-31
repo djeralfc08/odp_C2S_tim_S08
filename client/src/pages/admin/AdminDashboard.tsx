@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { usePageTitle } from "../../hooks/usePageTitle";
 import { Link } from "react-router-dom";
 import { useTournaments } from "../../hooks/tournaments/useTournaments";
 import { useGames } from "../../hooks/games/useGames";
@@ -7,6 +8,7 @@ import { healthApi } from "../../api_services/health/HealthAPIService";
 import { PageHeader, StatCard, StatusBadge, NodeBadge, Spinner, Card } from "../../components/ui/UI";
 
 export default function AdminDashboard() {
+  usePageTitle("Admin | Dashboard");
   const { tournaments, loading: tLoading } = useTournaments();
   const { games, loading: gLoading } = useGames();
   const [userCount, setUserCount] = useState<number | null>(null);

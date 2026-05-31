@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { usePageTitle } from "../../hooks/usePageTitle";
 import { Link, useSearchParams } from "react-router-dom";
 import { tournamentsApi } from "../../api_services/tournaments/TournamentsAPIService";
 import { useGames } from "../../hooks/games/useGames";
@@ -22,6 +23,7 @@ const STATUS_OPTIONS: { value: string; label: string }[] = [
 ];
 
 export function TournamentsPage() {
+  usePageTitle("Turniri");
   const [searchParams, setSearchParams] = useSearchParams();
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
   const [loading, setLoading] = useState(true);

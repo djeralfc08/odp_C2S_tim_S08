@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { usePageTitle } from "../../hooks/usePageTitle";
 import { auditsApi } from "../../api_services/audits/AuditsAPIService";
 import type { AuditLog } from "../../types/audit";
 import { PageHeader, Spinner, ErrorBox, Pagination, Table, TableHead } from "../../components/ui/UI";
@@ -6,6 +7,7 @@ import { PageHeader, Spinner, ErrorBox, Pagination, Table, TableHead } from "../
 const PAGE_SIZE = 20;
 
 export function AdminAuditPage() {
+  usePageTitle("Admin | Audit log");
   const [logs, setLogs] = useState<AuditLog[]>([]);
   const [total, setTotal] = useState(0);
   const [page, setPage] = useState(1);

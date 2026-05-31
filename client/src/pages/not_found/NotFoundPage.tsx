@@ -1,6 +1,8 @@
 import { Link } from "react-router-dom";
+import { usePageTitle } from "../../hooks/usePageTitle";
 
 export default function NotFoundPage() {
+  usePageTitle("404 - Nije pronađeno");
   return (
     <main className="min-h-screen bg-gray-50 flex items-center justify-center">
       <div className="text-center">

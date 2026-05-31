@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { usePageTitle } from "../../hooks/usePageTitle";
 import { useParams } from "react-router-dom";
 import { tournamentsApi } from "../../api_services/tournaments/TournamentsAPIService";
 import type { RegistrationStatus } from "../../types/tournament";
@@ -8,6 +9,7 @@ import {
 } from "../../components/ui/UI";
 
 export function AdminRegistrationsPage() {
+  usePageTitle("Admin | Prijave");
   const { id } = useParams<{ id: string }>();
   const tournamentId = parseInt(id ?? "0");
   const [tournament, setTournament] = useState<TournamentDetail | null>(null);

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { usePageTitle } from "../../hooks/usePageTitle";
 import { usersApi, type UserDto } from "../../api_services/users/UsersAPIService";
 import { useAuth } from "../../hooks/auth/useAuthHook";
 import {
@@ -6,6 +7,7 @@ import {
 } from "../../components/ui/UI";
 
 export function ProfilePage() {
+  usePageTitle("Profil");
   const { user } = useAuth();
   const [profile, setProfile] = useState<UserDto | null>(null);
   const [loading, setLoading] = useState(true);

@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { usePageTitle } from "../../hooks/usePageTitle";
 import { useAuth } from "../../hooks/auth/useAuthHook";
 import { useMyTeams } from "../../hooks/teams/useTeams";
 import { useWatchlist } from "../../hooks/tournaments/useTournaments";
@@ -6,6 +7,7 @@ import { useMyMatches } from "../../hooks/matches/useMatches";
 import { PageHeader, StatCard, StatusBadge, Spinner, Card } from "../../components/ui/UI";
 
 export default function UserDashboard() {
+  usePageTitle("Dashboard");
   const { user } = useAuth();
   const { teams, loading: teamsLoading } = useMyTeams();
   const { tournaments: watchlist, loading: watchlistLoading } = useWatchlist();
