@@ -1,6 +1,7 @@
-import { type ReactNode } from "react";
+import { type ReactNode, useState, useEffect } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import { useAuth } from "../../hooks/auth/useAuthHook";
+import { usersApi } from "../../api_services/users/UsersAPIService";
 
 const userNav = [
   { to: "/dashboard",   label: "Dashboard",    icon: "⊞" },
@@ -31,6 +32,14 @@ export function Layout({ children }: { children: ReactNode }) {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
   const nav = user?.role === "admin" ? adminNav : user ? userNav : guestNav;
+  const [avatarUrl, setAvatarUrl] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!user) { setAvatarUrl(null); return; }
+    usersApi.getMe().then(r => {
+      if (r.success && r.data) setAvatarUrl(r.data.avatar_url);
+    });
+  }, [user?.id]);
 
   return (
     <div className="flex min-h-screen bg-gray-50">
@@ -74,9 +83,17 @@ export function Layout({ children }: { children: ReactNode }) {
           {user ? (
             <>
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-8 h-8 rounded-full bg-emerald-100 border border-emerald-200 flex items-center justify-center">
-                  <span className="text-xs text-emerald-700 font-semibold">{user.username?.[0]?.toUpperCase()}</span>
-                </div>
+                {avatarUrl ? (
+                  <img
+                    src={avatarUrl}
+                    alt={user.username}
+                    className="w-8 h-8 rounded-full object-cover border border-emerald-200 shrink-0"
+                  />
+                ) : (
+                  <div className="w-8 h-8 rounded-full bg-emerald-100 border border-emerald-200 flex items-center justify-center shrink-0">
+                    <span className="text-xs text-emerald-700 font-semibold">{user.username?.[0]?.toUpperCase()}</span>
+                  </div>
+                )}
                 <div className="min-w-0">
                   <p className="text-xs font-semibold text-gray-800 truncate">{user.username}</p>
                   <p className="text-[10px] text-gray-400">{user.role}</p>

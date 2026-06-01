@@ -56,22 +56,25 @@ export function ProfilePage() {
       <div className="grid grid-cols-3 gap-6">
         {/* Avatar */}
         <Card className="flex flex-col items-center text-center">
-          <div className="w-20 h-20 rounded-full bg-emerald-50 border-2 border-cyan-500/20 flex items-center justify-center mb-4">
+          <div className="w-24 h-24 rounded-full border-2 border-emerald-200 flex items-center justify-center mb-4 overflow-hidden bg-emerald-50 shadow-sm">
             {avatarUrl ? (
-              <img src={avatarUrl} alt="avatar" className="w-full h-full rounded-full object-cover" />
+              <img src={avatarUrl} alt="avatar" className="w-full h-full object-cover" />
             ) : (
-              <span className="text-3xl font-black text-emerald-600">{user?.username?.[0]?.toUpperCase()}</span>
+              <span className="text-4xl font-black text-emerald-500">{user?.username?.[0]?.toUpperCase()}</span>
             )}
           </div>
-          <p className="text-base font-bold text-white mb-0.5">{user?.username}</p>
-          <p className="text-xs text-gray-500 mb-2">{profile?.email}</p>
+          <p className="text-base font-bold text-gray-900 mb-0.5">{user?.username}</p>
+          <p className="text-xs text-gray-400 mb-3">{profile?.email}</p>
           <span className={`text-xs px-2.5 py-1 rounded-lg border font-medium ${
             user?.role === "admin"
-              ? "bg-amber-500/10 text-amber-400 border-amber-500/20"
-              : "bg-emerald-50 text-emerald-600 border-cyan-500/20"
+              ? "bg-amber-50 text-amber-700 border-amber-200"
+              : "bg-emerald-50 text-emerald-700 border-emerald-200"
           }`}>
             {user?.role === "admin" ? "Administrator" : "Igrač"}
           </span>
+          {profile?.real_name && (
+            <p className="text-xs text-gray-500 mt-3 italic">{profile.real_name}</p>
+          )}
         </Card>
 
         {/* Form */}
