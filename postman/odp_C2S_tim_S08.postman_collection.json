@@ -1,0 +1,118 @@
+{
+  "info": {
+    "name": "odp_C2S_tim_S08 API",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:4000/api/v1" },
+    { "key": "token", "value": "" },
+    { "key": "tournamentId", "value": "1" },
+    { "key": "teamId", "value": "1" },
+    { "key": "gameId", "value": "1" }
+  ],
+  "auth": {
+    "type": "bearer",
+    "bearer": [{ "key": "token", "value": "{{token}}", "type": "string" }]
+  },
+  "item": [
+    {
+      "name": "Auth",
+      "item": [
+        {
+          "name": "Register",
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"testuser\",\n  \"email\": \"test@example.com\",\n  \"password\": \"Test1234\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/register"
+          }
+        },
+        {
+          "name": "Login (čuva token)",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "const json = pm.response.json();",
+                  "if (json.data) pm.collectionVariables.set('token', json.data);"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ],
+          "request": {
+            "auth": { "type": "noauth" },
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"username\": \"testuser\",\n  \"password\": \"Test1234\"\n}"
+            },
+            "url": "{{baseUrl}}/auth/login"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Health",
+      "item": [
+        {
+          "name": "Ping",
+          "request": { "auth": { "type": "noauth" }, "method": "GET", "url": "{{baseUrl}}/health" }
+        }
+      ]
+    },
+    {
+      "name": "Games",
+      "item": [
+        { "name": "Get all", "request": { "auth": { "type": "noauth" }, "method": "GET", "url": "{{baseUrl}}/games" } },
+        { "name": "Get by id", "request": { "auth": { "type": "noauth" }, "method": "GET", "url": "{{baseUrl}}/games/{{gameId}}" } },
+        {
+          "name": "Create (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"name\": \"CS2\",\n  \"genre\": \"FPS\",\n  \"max_team_size\": 5\n}" },
+            "url": "{{baseUrl}}/games"
+          }
+        }
+      ]
+    },
+    {
+      "name": "Tournaments",
+      "item": [
+        { "name": "Get all", "request": { "auth": { "type": "noauth" }, "method": "GET", "url": "{{baseUrl}}/tournaments" } },
+        { "name": "Get by id", "request": { "auth": { "type": "noauth" }, "method": "GET", "url": "{{baseUrl}}/tournaments/{{tournamentId}}" } },
+        {
+          "name": "Create (Admin)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Spring Cup\",\n  \"game_id\": 1,\n  \"format\": \"single_elimination\",\n  \"max_teams\": 8,\n  \"registration_deadline\": \"2026-12-01T23:59:59.000Z\",\n  \"starts_at\": \"2026-12-10T18:00:00.000Z\"\n}"
+            },
+            "url": "{{baseUrl}}/tournaments"
+          }
+        },
+        { "name": "Get registrations (Admin)", "request": { "method": "GET", "url": "{{baseUrl}}/tournaments/{{tournamentId}}/registrations" } },
+        {
+          "name": "Register team (User)",
+          "request": {
+            "method": "POST",
+            "header": [{ "key": "Content-Type", "value": "application/json" }],
+            "body": { "mode": "raw", "raw": "{\n  \"team_id\": 1\n}" },
+            "url": "{{baseUrl}}/tournaments/{{tournamentId}}/register"
+          }
+        },
+        { "name": "Watchlist (User)", "request": { "method": "GET", "url": "{{baseUrl}}/tournaments/watchlist" } },
+        { "name": "Add watch (User)", "request": { "method": "POST", "url": "{{baseUrl}}/tournaments/{{tournamentId}}/watch" } }
+      ]
+    }
+  ]
+}

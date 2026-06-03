@@ -5,34 +5,53 @@ import cors from "cors";
 import { ConsoleLoggerService } from "./Services/logger/ConsoleLoggerService";
 import { DbManager } from "./Database/connection/DbConnectionPool";
 
-import { UserRepository }   from "./Database/repositories/users/UserRepository";
+import { UserRepository } from "./Database/repositories/users/UserRepository";
 import { EntityRepository } from "./Database/repositories/entity/EntityRepository";
-import { GameRepository }   from "./Database/repositories/game/GameRepository";
+import { GameRepository } from "./Database/repositories/game/GameRepository";
+import { TournamentRepository } from "./Database/repositories/tournament/TournamentRepository";
+import { TournamentRegistrationRepository } from "./Database/repositories/tournament/TournamentRegistrationRepository";
+import { TeamRepository } from "./Database/repositories/team/TeamRepository";
+import { WatchlistRepository } from "./Database/repositories/watchlist/WatchlistRepository";
 
-import { AuthService }   from "./Services/auth/AuthService";
-import { UserService }   from "./Services/users/UserService";
+import { AuthService } from "./Services/auth/AuthService";
+import { UserService } from "./Services/users/UserService";
 import { EntityService } from "./Services/entity/EntityService";
-import { GameService }   from "./Services/games/GameService";
+import { GameService } from "./Services/games/GameService";
+import { TournamentService } from "./Services/tournament/TournamentService";
+import { TournamentRegistrationService } from "./Services/tournament/TournamentRegistrationService";
+import { WatchlistService } from "./Services/watchlist/WatchlistService";
 
-import { AuthController }   from "./WebAPI/controllers/AuthController";
-import { UserController }   from "./WebAPI/controllers/UserController";
+import { AuthController } from "./WebAPI/controllers/AuthController";
+import { UserController } from "./WebAPI/controllers/UserController";
 import { EntityController } from "./WebAPI/controllers/EntityController";
-import { GameController }   from "./WebAPI/controllers/GameController";
+import { GameController } from "./WebAPI/controllers/GameController";
 import { HealthController } from "./WebAPI/controllers/HealthController";
+import { TournamentController } from "./WebAPI/controllers/TournamentController";
 
 export const logger = new ConsoleLoggerService();
-export const db     = new DbManager(logger);
+export const db = new DbManager(logger);
 
 // Repositories
-const userRepo   = new UserRepository(db, logger);
+const userRepo = new UserRepository(db, logger);
 const entityRepo = new EntityRepository(db, logger);
-const gameRepo   = new GameRepository(db, logger);
+const gameRepo = new GameRepository(db, logger);
+const tournamentRepo = new TournamentRepository(db, logger);
+const registrationRepo = new TournamentRegistrationRepository(db, logger);
+const teamRepo = new TeamRepository(db, logger);
+const watchlistRepo = new WatchlistRepository(db, logger);
 
 // Services
-const authService   = new AuthService(userRepo);
-const userService   = new UserService(userRepo);
+const authService = new AuthService(userRepo);
+const userService = new UserService(userRepo);
 const entityService = new EntityService(entityRepo);
-const gameService   = new GameService(gameRepo);
+const gameService = new GameService(gameRepo);
+const tournamentService = new TournamentService(tournamentRepo);
+const registrationService = new TournamentRegistrationService(
+  tournamentRepo,
+  registrationRepo,
+  teamRepo,
+);
+const watchlistService = new WatchlistService(watchlistRepo, tournamentRepo);
 
 // Express
 const app = express();
@@ -44,5 +63,9 @@ app.use("/api/v1", new AuthController(authService).getRouter());
 app.use("/api/v1", new UserController(userService).getRouter());
 app.use("/api/v1", new EntityController(entityService).getRouter());
 app.use("/api/v1", new GameController(gameService).getRouter());
+app.use(
+  "/api/v1",
+  new TournamentController(tournamentService, registrationService, watchlistService).getRouter(),
+);
 
 export default app;
