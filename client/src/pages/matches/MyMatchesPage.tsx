@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { usePageTitle } from "../../hooks/usePageTitle";
 import { Link } from "react-router-dom";
 import { useMyMatches } from "../../hooks/matches/useMatches";
 import { PageHeader, StatusBadge, Spinner, Empty, ErrorBox } from "../../components/ui/UI";
@@ -12,6 +13,7 @@ const STATUS_TABS: { value: MatchStatus | "all"; label: string }[] = [
 ];
 
 export function MyMatchesPage() {
+  usePageTitle("Moji mecevi");
   const { matches, loading, error } = useMyMatches();
   const [tab, setTab] = useState<MatchStatus | "all">("all");
 

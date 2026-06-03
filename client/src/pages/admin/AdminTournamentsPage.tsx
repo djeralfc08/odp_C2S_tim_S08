@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
+import { usePageTitle } from "../../hooks/usePageTitle";
 import { Link, useNavigate } from "react-router-dom";
 import { tournamentsApi } from "../../api_services/tournaments/TournamentsAPIService";
 import type { Tournament } from "../../types/tournament";
 import { PageHeader, Btn, StatusBadge, FormatBadge, Spinner, Empty, ErrorBox, SuccessBox, Table, TableHead } from "../../components/ui/UI";
 
 export function AdminTournamentsPage() {
+  usePageTitle("Admin | Turniri");
   const [tournaments, setTournaments] = useState<Tournament[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

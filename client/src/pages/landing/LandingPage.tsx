@@ -3,6 +3,7 @@ import { useAuth } from "../../hooks/auth/useAuthHook";
 import { useTournaments } from "../../hooks/tournaments/useTournaments";
 import { useGames } from "../../hooks/games/useGames";
 import { StatusBadge, FormatBadge, Spinner } from "../../components/ui/UI";
+import { usePageTitle } from "../../hooks/usePageTitle";
 
 function TournamentMiniCard({ t }: { t: { id: number; name: string; game_name?: string; status: string; format: string; registered_teams_count?: number; max_teams: number } }) {
   return (
@@ -22,6 +23,7 @@ function TournamentMiniCard({ t }: { t: { id: number; name: string; game_name?: 
 }
 
 export function LandingPage() {
+  usePageTitle("");
   const { user } = useAuth();
   const { tournaments, loading: tLoading } = useTournaments();
   const { games, loading: gLoading } = useGames();

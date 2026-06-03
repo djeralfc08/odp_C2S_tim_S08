@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
+import { usePageTitle } from "../../hooks/usePageTitle";
 import { healthApi } from "../../api_services/health/HealthAPIService";
 import type { DbNodeHealth, ApiNodeHealth } from "../../types/health";
 import { PageHeader, NodeBadge, Spinner, Card } from "../../components/ui/UI";
@@ -10,6 +11,7 @@ function LatencyBar({ ms }: { ms: number | null }) {
 }
 
 export function AdminHealthPage() {
+  usePageTitle("Admin | Health");
   const [dbNodes, setDbNodes] = useState<DbNodeHealth[]>([]);
   const [apiNodes, setApiNodes] = useState<ApiNodeHealth[]>([]);
   const [lastUpdate, setLastUpdate] = useState<Date | null>(null);

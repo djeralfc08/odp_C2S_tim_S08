@@ -1,9 +1,11 @@
 import { useState } from "react";
+import { usePageTitle } from "../../hooks/usePageTitle";
 import { Link } from "react-router-dom";
 import { useGames } from "../../hooks/games/useGames";
 import { PageHeader, Spinner, Empty, ErrorBox } from "../../components/ui/UI";
 
 export function GamesPage() {
+  usePageTitle("Igre");
   const { games, loading, error } = useGames();
   const [search, setSearch] = useState("");
 

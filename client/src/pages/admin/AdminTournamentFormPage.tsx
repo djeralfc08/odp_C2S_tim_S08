@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { usePageTitle } from "../../hooks/usePageTitle";
 import { useNavigate, useParams } from "react-router-dom";
 import { tournamentsApi } from "../../api_services/tournaments/TournamentsAPIService";
 import { useGames } from "../../hooks/games/useGames";
@@ -10,6 +11,7 @@ function isPowerOfTwo(n: number) {
 }
 
 export function AdminTournamentFormPage() {
+  usePageTitle("Admin | Turniri");
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { games } = useGames();

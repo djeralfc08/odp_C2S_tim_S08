@@ -24,7 +24,7 @@ export function LoginForm({ authApi }: { authApi: IAuthAPIService }) {
         <div className="w-12 h-12 rounded-2xl bg-emerald-100 border border-emerald-200 flex items-center justify-center mx-auto mb-4 shadow-sm shadow-emerald-100">
           <span className="text-emerald-700 font-bold text-sm">PG</span>
         </div>
-        <h1 className="text-xl font-bold text-white">Dobrodošao nazad</h1>
+        <h1 className="text-xl font-bold text-gray-900">Dobrodošao nazad</h1>
         <p className="text-sm text-gray-500 mt-1">Prijavi se na PulseGrid</p>
       </div>
 
@@ -38,13 +38,13 @@ export function LoginForm({ authApi }: { authApi: IAuthAPIService }) {
         <div>
           <label className="block text-xs text-gray-500 mb-1.5 font-medium">Gamer tag</label>
           <input type="text" value={username} onChange={e => setUsername(e.target.value)} required
-            className="w-full bg-gray-100 border border-gray-300 rounded-xl px-4 py-3 text-white text-sm placeholder-gray-400 focus:outline-none focus:border-emerald-400 transition-colors"
+            className="w-full bg-white border border-gray-300 rounded-xl px-4 py-3 text-gray-900 text-sm placeholder-gray-400 focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-50 transition-colors shadow-sm"
             placeholder="tvoj_gamer_tag" />
         </div>
         <div>
           <label className="block text-xs text-gray-500 mb-1.5 font-medium">Lozinka</label>
           <input type="password" value={password} onChange={e => setPassword(e.target.value)} required
-            className="w-full bg-gray-100 border border-gray-300 rounded-xl px-4 py-3 text-white text-sm placeholder-gray-400 focus:outline-none focus:border-emerald-400 transition-colors"
+            className="w-full bg-white border border-gray-300 rounded-xl px-4 py-3 text-gray-900 text-sm placeholder-gray-400 focus:outline-none focus:border-emerald-400 focus:ring-2 focus:ring-emerald-50 transition-colors shadow-sm"
             placeholder="••••••••" />
         </div>
         <button type="submit" disabled={loading}

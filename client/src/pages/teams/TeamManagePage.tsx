@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { usePageTitle } from "../../hooks/usePageTitle";
 import { useParams, useNavigate } from "react-router-dom";
 import { teamsApi } from "../../api_services/teams/TeamsAPIService";
 import { useAuth } from "../../hooks/auth/useAuthHook";
@@ -9,6 +10,7 @@ import {
 } from "../../components/ui/UI";
 
 export function TeamManagePage() {
+  usePageTitle("Upravljanje timom");
   const { id } = useParams<{ id: string }>();
   const { user } = useAuth();
   const navigate = useNavigate();
