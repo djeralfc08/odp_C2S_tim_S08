@@ -252,10 +252,29 @@ export class TournamentController {
   }
 
   private async generateBracket(_req: Request, res: Response): Promise<void> {
-    res.status(501).json({
+    const idCheck = validateIdParam(_req.params.id as string, "tournament id");
+
+  if (!idCheck.valid) {
+    res.status(400).json({
       success: false,
-      message: "Bracket generation is not implemented yet",
+      message: idCheck.message
     });
+    return;
+  }
+
+  const ok = await this.registrationService.generateBracket(idCheck.value!);
+
+  if (!ok) {
+    res.status(409).json({
+      success: false,
+      message: "Bracket could not be generated"
+    });
+    return;
+  }
+
+  res.status(200).json({
+    success: true
+  });
   }
 
   private async getWatchlist(req: Request, res: Response): Promise<void> {

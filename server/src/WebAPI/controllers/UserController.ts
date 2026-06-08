@@ -8,10 +8,14 @@ export class UserController {
   private readonly router = Router();
 
   public constructor(private readonly userService: IUserService) {
-    this.router.get("/users",          authenticate, authorize(UserRole.ADMIN), this.getAll.bind(this));
-    this.router.get("/users/:id",      authenticate, authorize(UserRole.ADMIN), this.getById.bind(this));
-    this.router.patch("/users/:id/deactivate", authenticate, authorize(UserRole.ADMIN), this.deactivate.bind(this));
-  }
+  this.router.get("/users", authenticate, authorize(UserRole.ADMIN), this.getAll.bind(this));
+
+  this.router.put("/users/:id/role", authenticate, authorize(UserRole.ADMIN), this.updateRole.bind(this));
+
+  this.router.get("/users/:id", authenticate, authorize(UserRole.ADMIN), this.getById.bind(this));
+
+  this.router.patch("/users/:id/deactivate", authenticate, authorize(UserRole.ADMIN), this.deactivate.bind(this));
+}
 
   private async getAll(req: Request, res: Response): Promise<void> {
     const users = await this.userService.getAll();
@@ -32,6 +36,33 @@ export class UserController {
     const ok = await this.userService.deactivate(id);
     res.status(ok ? 200 : 500).json({ success: ok, message: ok ? "User deactivated" : "Failed to deactivate user" });
   }
+
+
+
+  private async updateRole(req: Request, res: Response): Promise<void> {
+  const id = parseInt(req.params.id as string, 10);
+
+  if (isNaN(id)) {
+    res.status(400).json({ success: false, message: "Invalid id" });
+    return;
+  }
+
+  const role = req.body?.role;
+
+  if (typeof role !== "string") {
+    res.status(400).json({ success: false, message: "Role is required" });
+    return;
+  }
+
+  const ok = await this.userService.updateRole(id, role);
+
+  if (!ok) {
+    res.status(400).json({ success: false, message: "Role could not be updated" });
+    return;
+  }
+
+  res.status(200).json({ success: true });
+}
 
   public getRouter(): Router { return this.router; }
 }

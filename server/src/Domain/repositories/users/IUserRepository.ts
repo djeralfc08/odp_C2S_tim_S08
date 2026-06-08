@@ -8,4 +8,5 @@ export interface IUserRepository {
   create(user: User): Promise<User>;
   update(user: User): Promise<boolean>;
   deactivate(id: number): Promise<boolean>;
+  updateRole(id: number, role: string): Promise<boolean>;
 }

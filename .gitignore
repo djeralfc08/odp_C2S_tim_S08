@@ -19,3 +19,9 @@ logs
 # OS
 .DS_Store
 Thumbs.db
+
+package-lock.json
+**/package-lock.json
+
+package-lock-backup.json
+**/package-lock-backup.json

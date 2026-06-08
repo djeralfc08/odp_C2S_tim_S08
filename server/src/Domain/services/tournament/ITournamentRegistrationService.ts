@@ -10,4 +10,6 @@ export interface ITournamentRegistrationService {
     teamId: number,
     status: TournamentRegistrationStatus,
   ): Promise<boolean>;
+
+  generateBracket(tournamentId: number): Promise<boolean>;
 }
