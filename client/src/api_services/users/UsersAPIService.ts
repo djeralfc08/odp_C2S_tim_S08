@@ -12,18 +12,21 @@ const err = (e: unknown, fallback: string) => ({
 
 export interface UserDto {
   id: number;
-  username: string;
-  email: string;
-  real_name: string | null;
-  avatar_url: string | null;
-  role: 'user' | 'admin';
-  is_active: boolean;
-  created_at: string;
+  username?: string;
+  gamer_tag?: string;
+  email?: string;
+  full_name?: string;
+  real_name?: string | null;
+  profile_image?: string | null;
+  avatar_url?: string | null;
+  role?: 'user' | 'admin';
+  is_active?: boolean;
+  created_at?: string;
 }
 
 export const usersApi = {
   async getAll(): Promise<{ success: boolean; data?: UserDto[]; message?: string }> {
-    return axios.get<{ success: boolean; data: UserDto[] }>(`${BASE}/all`, { headers: authHeader() })
+    return axios.get<{ success: boolean; data: UserDto[] }>(`${BASE}`, { headers: authHeader() })
       .then(r => r.data).catch(e => err(e, "Greska pri ucitavanju korisnika"));
   },
   async getById(id: number): Promise<{ success: boolean; data?: UserDto; message?: string }> {

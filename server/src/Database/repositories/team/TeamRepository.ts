@@ -399,6 +399,24 @@ async findMembersByTeamId(teamId: number): Promise<TeamMemberDto[]> {
   }
 }
 
+  async countMembersByTeamId(teamId: number): Promise<number> {
+    const res = await this.db.getReadConnection();
+    if (!res) return 0;
+
+    try {
+      const [rows] = await res.conn.execute<RowDataPacket[]>(
+        `SELECT COUNT(*) AS cnt FROM team_members WHERE team_id = ?`,
+        [teamId],
+      );
+      return Number(rows[0]?.cnt ?? 0);
+    } catch (err) {
+      this.logger.error("TeamRepository", "countMembersByTeamId failed", err);
+      return 0;
+    } finally {
+      res.conn.release();
+    }
+  }
+
   async findByUserId(userId: number): Promise<Team[]> {
   const res = await this.db.getReadConnection();
   if (!res) return [];

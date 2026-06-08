@@ -175,6 +175,19 @@ CREATE TABLE user_watchlist (
   CONSTRAINT fk_uw_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
   CONSTRAINT fk_uw_tournament FOREIGN KEY (tournament_id) REFERENCES tournaments(id) ON DELETE CASCADE
 );
+
+CREATE TABLE audit_logs (
+  id         INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+  user_id    INT UNSIGNED NULL,
+  action     VARCHAR(64)  NOT NULL,
+  entity     VARCHAR(64)  NULL,
+  entity_id  INT UNSIGNED NULL,
+  details    TEXT NULL,
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  CONSTRAINT fk_audit_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE SET NULL,
+  KEY idx_audit_created (created_at),
+  KEY idx_audit_user (user_id)
+);
 SQL
 
 MASTER_TABLES=$($M -s --skip-column-names \

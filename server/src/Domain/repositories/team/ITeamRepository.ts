@@ -35,6 +35,8 @@ export interface ITeamRepository {
 
   findMembersByTeamId(teamId: number): Promise<TeamMemberDto[]>;
 
+  countMembersByTeamId(teamId: number): Promise<number>;
+
   findByUserId(userId: number): Promise<Team[]>;
 }
 

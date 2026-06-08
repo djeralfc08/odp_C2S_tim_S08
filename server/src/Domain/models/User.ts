@@ -8,5 +8,7 @@ export class User {
     public role: UserRole    = UserRole.USER,
     public passwordHash: string = "",
     public isActive: number  = 1,
+    public fullName: string = "",
+    public profileImage: string | null = null,
   ) {}
 }

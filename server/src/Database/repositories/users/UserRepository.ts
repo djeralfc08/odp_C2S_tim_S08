@@ -1,5 +1,6 @@
 import { RowDataPacket, ResultSetHeader } from "mysql2";
 import { IUserRepository } from "../../../Domain/repositories/users/IUserRepository";
+import { PublicUserDto } from "../../../Domain/DTOs/users/PublicUserDto";
 import { User } from "../../../Domain/models/User";
 import { UserRole } from "../../../Domain/enums/UserRole";
 import { DbManager } from "../../connection/DbConnectionPool";
@@ -18,7 +19,9 @@ export class UserRepository implements IUserRepository {
       r.email,
       r.role as UserRole,
       r.password_hash,
-      r.is_active
+      r.is_active,
+      r.full_name ?? "",
+      r.profile_image ?? null,
     );
   }
 
@@ -28,14 +31,15 @@ export class UserRepository implements IUserRepository {
 
     try {
       const [result] = await res.conn.execute<ResultSetHeader>(
-        `INSERT INTO users (gamer_tag, full_name, email, role, password_hash)
-         VALUES (?, ?, ?, ?, ?)`,
+        `INSERT INTO users (gamer_tag, full_name, email, role, password_hash, profile_image)
+         VALUES (?, ?, ?, ?, ?, ?)`,
         [
           user.username,
-          user.username,
+          user.fullName || user.username,
           user.email,
           user.role,
-          user.passwordHash
+          user.passwordHash,
+          user.profileImage,
         ]
       );
 
@@ -51,6 +55,28 @@ export class UserRepository implements IUserRepository {
     } catch (err) {
       this.logger.error("UserRepository", "create failed", err);
       return new User();
+    } finally {
+      res.conn.release();
+    }
+  }
+
+  async findPublicById(id: number): Promise<PublicUserDto | null> {
+    const res = await this.db.getReadConnection();
+    if (!res) return null;
+
+    try {
+      const [rows] = await res.conn.execute<RowDataPacket[]>(
+        `SELECT id, gamer_tag, full_name, profile_image
+         FROM users
+         WHERE id = ? AND is_active = 1`,
+        [id],
+      );
+      if (rows.length === 0) return null;
+      const r = rows[0];
+      return new PublicUserDto(r.id, r.gamer_tag, r.full_name ?? "", r.profile_image ?? null);
+    } catch (err) {
+      this.logger.error("UserRepository", "findPublicById failed", err);
+      return null;
     } finally {
       res.conn.release();
     }

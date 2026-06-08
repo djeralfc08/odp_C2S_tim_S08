@@ -1,7 +1,9 @@
 import { User } from "../../models/User";
+import { PublicUserDto } from "../../DTOs/users/PublicUserDto";
 
 export interface IUserRepository {
   findById(id: number): Promise<User>;
+  findPublicById(id: number): Promise<PublicUserDto | null>;
   findByUsername(username: string): Promise<User>;
   findByEmail(email: string): Promise<User>;
   findAll(): Promise<User[]>;

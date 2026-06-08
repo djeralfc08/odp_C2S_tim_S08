@@ -1,4 +1,4 @@
-import { RowDataPacket } from "mysql2";
+import { RowDataPacket, ResultSetHeader } from "mysql2";
 import { AuditLog } from "../../../Domain/models/AuditLog";
 import { IAuditRepository } from "../../../Domain/repositories/audit/IAuditRepository";
 import { DbManager } from "../../connection/DbConnectionPool";
@@ -40,6 +40,25 @@ export class AuditRepository implements IAuditRepository {
     } catch (err) {
       this.logger.error("AuditRepository", "findAll failed", err);
       return [];
+    } finally {
+      res.conn.release();
+    }
+  }
+
+  async create(log: AuditLog): Promise<boolean> {
+    const res = await this.db.getWriteConnection();
+    if (!res) return false;
+
+    try {
+      const [result] = await res.conn.execute<ResultSetHeader>(
+        `INSERT INTO audit_logs (user_id, action, entity, entity_id, details)
+         VALUES (?, ?, ?, ?, ?)`,
+        [log.userId, log.action, log.entity, log.entityId, log.details],
+      );
+      return result.affectedRows > 0;
+    } catch (err) {
+      this.logger.error("AuditRepository", "create failed", err);
+      return false;
     } finally {
       res.conn.release();
     }

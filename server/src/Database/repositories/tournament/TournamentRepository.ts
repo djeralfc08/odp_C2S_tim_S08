@@ -1,4 +1,4 @@
-import { RowDataPacket, ResultSetHeader } from "mysql2";
+import { RowDataPacket, ResultSetHeader, PoolConnection } from "mysql2/promise";
 import {
   ITournamentRepository,
   TournamentFilters,
@@ -12,12 +12,24 @@ import { TournamentFormat } from "../../../Domain/enums/TournamentFormat";
 import { TournamentStatus } from "../../../Domain/enums/TournamentStatus";
 import { DbManager } from "../../connection/DbConnectionPool";
 import { ILoggerService } from "../../../Domain/services/logger/ILoggerService";
+import { toMysqlDateTime } from "../../../Domain/helpers/toMysqlDateTime";
 
 export class TournamentRepository implements ITournamentRepository {
   public constructor(
     private readonly db: DbManager,
     private readonly logger: ILoggerService,
   ) {}
+
+  private readonly selectByIdSql = `SELECT t.*, g.name AS game_name,
+    (SELECT COUNT(*) FROM tournament_registrations tr WHERE tr.tournament_id = t.id) AS registered_teams_count
+   FROM tournaments t
+   JOIN games g ON g.id = t.game_id
+   WHERE t.id = ?`;
+
+  private async fetchById(conn: PoolConnection, id: number): Promise<Tournament | null> {
+    const [rows] = await conn.execute<RowDataPacket[]>(this.selectByIdSql, [id]);
+    return rows.length > 0 ? this.map(rows[0]) : null;
+  }
 
   private map(r: RowDataPacket): Tournament {
     return new Tournament(
@@ -45,15 +57,7 @@ export class TournamentRepository implements ITournamentRepository {
     if (!res) return null;
 
     try {
-      const [rows] = await res.conn.execute<RowDataPacket[]>(
-        `SELECT t.*, g.name AS game_name,
-          (SELECT COUNT(*) FROM tournament_registrations tr WHERE tr.tournament_id = t.id) AS registered_teams_count
-         FROM tournaments t
-         JOIN games g ON g.id = t.game_id
-         WHERE t.id = ?`,
-        [id],
-      );
-      return rows.length > 0 ? this.map(rows[0]) : null;
+      return await this.fetchById(res.conn, id);
     } catch (err) {
       this.logger.error("TournamentRepository", "findById failed", err);
       return null;
@@ -138,8 +142,8 @@ export class TournamentRepository implements ITournamentRepository {
           dto.name.trim(),
           dto.format,
           dto.max_teams,
-          dto.registration_deadline,
-          dto.starts_at,
+          toMysqlDateTime(dto.registration_deadline),
+          toMysqlDateTime(dto.starts_at),
           dto.prize_pool?.trim() || null,
           TournamentStatus.DRAFT,
         ],
@@ -147,7 +151,7 @@ export class TournamentRepository implements ITournamentRepository {
 
       if (result.insertId === 0) return new Tournament();
 
-      const created = await this.findById(result.insertId);
+      const created = await this.fetchById(res.conn, result.insertId);
       return created ?? new Tournament();
     } catch (err) {
       this.logger.error("TournamentRepository", "create failed", err);
@@ -182,11 +186,11 @@ export class TournamentRepository implements ITournamentRepository {
     }
     if (dto.registration_deadline !== undefined) {
       fields.push("registration_deadline = ?");
-      values.push(dto.registration_deadline);
+      values.push(toMysqlDateTime(dto.registration_deadline));
     }
     if (dto.starts_at !== undefined) {
       fields.push("starts_at = ?");
-      values.push(dto.starts_at);
+      values.push(toMysqlDateTime(dto.starts_at));
     }
     if (dto.prize_pool !== undefined) {
       fields.push("prize_pool = ?");

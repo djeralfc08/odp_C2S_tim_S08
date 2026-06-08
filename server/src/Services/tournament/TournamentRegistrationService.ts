@@ -2,6 +2,7 @@ import { ITournamentRegistrationService } from "../../Domain/services/tournament
 import { ITournamentRepository } from "../../Domain/repositories/tournament/ITournamentRepository";
 import { ITournamentRegistrationRepository } from "../../Domain/repositories/tournament/ITournamentRegistrationRepository";
 import { ITeamRepository } from "../../Domain/repositories/team/ITeamRepository";
+import { IGameRepository } from "../../Domain/repositories/game/IGameRepository";
 import { TournamentRegistrationDto } from "../../Domain/DTOs/tournament/CreateTournamentDto";
 import { TournamentRegistration } from "../../Domain/models/TournamentRegistration";
 import { TournamentRegistrationStatus } from "../../Domain/enums/TournamentRegistrationStatus";
@@ -15,6 +16,7 @@ export class TournamentRegistrationService implements ITournamentRegistrationSer
     private readonly registrationRepo: ITournamentRegistrationRepository,
     private readonly teamRepo: ITeamRepository,
     private readonly matchRepo: IMatchRepository,
+    private readonly gameRepo: IGameRepository,
   ) {}
 
   async getByTournamentId(tournamentId: number): Promise<TournamentRegistrationDto[]> {
@@ -39,6 +41,11 @@ export class TournamentRegistrationService implements ITournamentRegistrationSer
 
     const existing = await this.registrationRepo.findByTournamentAndTeam(tournamentId, teamId);
     if (existing) return false;
+
+    const game = await this.gameRepo.findById(tournament.gameId);
+    if (!game) return false;
+    const memberCount = await this.teamRepo.countMembersByTeamId(teamId);
+    if (memberCount < game.maxPlayerPerTeam) return false;
 
     const created = await this.registrationRepo.create(tournamentId, teamId);
     return created !== null;

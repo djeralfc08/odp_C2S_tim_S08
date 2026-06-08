@@ -8,24 +8,21 @@ export class UserController {
   private readonly router = Router();
 
   public constructor(private readonly userService: IUserService) {
-  this.router.get("/users", authenticate, authorize(UserRole.ADMIN), this.getAll.bind(this));
-
-  this.router.put("/users/:id/role", authenticate, authorize(UserRole.ADMIN), this.updateRole.bind(this));
-
-  this.router.get("/users/:id", authenticate, authorize(UserRole.ADMIN), this.getById.bind(this));
-
-  this.router.patch("/users/:id/deactivate", authenticate, authorize(UserRole.ADMIN), this.deactivate.bind(this));
-}
+    this.router.get("/users", authenticate, authorize(UserRole.ADMIN), this.getAll.bind(this));
+    this.router.put("/users/:id/role", authenticate, authorize(UserRole.ADMIN), this.updateRole.bind(this));
+    this.router.get("/users/:id", this.getPublicProfile.bind(this));
+    this.router.patch("/users/:id/deactivate", authenticate, authorize(UserRole.ADMIN), this.deactivate.bind(this));
+  }
 
   private async getAll(req: Request, res: Response): Promise<void> {
     const users = await this.userService.getAll();
     res.status(200).json({ success: true, data: users });
   }
 
-  private async getById(req: Request, res: Response): Promise<void> {
+  private async getPublicProfile(req: Request, res: Response): Promise<void> {
     const id = parseInt(req.params.id as string, 10);
     if (isNaN(id)) { res.status(400).json({ success: false, message: "Invalid id" }); return; }
-    const user = await this.userService.getById(id);
+    const user = await this.userService.getPublicProfile(id);
     if (!user) { res.status(404).json({ success: false, message: "User not found" }); return; }
     res.status(200).json({ success: true, data: user });
   }
@@ -37,32 +34,30 @@ export class UserController {
     res.status(ok ? 200 : 500).json({ success: ok, message: ok ? "User deactivated" : "Failed to deactivate user" });
   }
 
-
-
   private async updateRole(req: Request, res: Response): Promise<void> {
-  const id = parseInt(req.params.id as string, 10);
+    const id = parseInt(req.params.id as string, 10);
 
-  if (isNaN(id)) {
-    res.status(400).json({ success: false, message: "Invalid id" });
-    return;
+    if (isNaN(id)) {
+      res.status(400).json({ success: false, message: "Invalid id" });
+      return;
+    }
+
+    const role = req.body?.role;
+
+    if (typeof role !== "string") {
+      res.status(400).json({ success: false, message: "Role is required" });
+      return;
+    }
+
+    const ok = await this.userService.updateRole(id, role);
+
+    if (!ok) {
+      res.status(400).json({ success: false, message: "Role could not be updated" });
+      return;
+    }
+
+    res.status(200).json({ success: true });
   }
-
-  const role = req.body?.role;
-
-  if (typeof role !== "string") {
-    res.status(400).json({ success: false, message: "Role is required" });
-    return;
-  }
-
-  const ok = await this.userService.updateRole(id, role);
-
-  if (!ok) {
-    res.status(400).json({ success: false, message: "Role could not be updated" });
-    return;
-  }
-
-  res.status(200).json({ success: true });
-}
 
   public getRouter(): Router { return this.router; }
 }

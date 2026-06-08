@@ -1,6 +1,7 @@
 import { IUserService } from "../../Domain/services/users/IUserService";
 import { IUserRepository } from "../../Domain/repositories/users/IUserRepository";
 import { UserDto } from "../../Domain/DTOs/users/UserDto";
+import { PublicUserDto } from "../../Domain/DTOs/users/PublicUserDto";
 import { UserRole } from "../../Domain/enums/UserRole";
 
 export class UserService implements IUserService {
@@ -15,6 +16,10 @@ export class UserService implements IUserService {
     const u = await this.userRepo.findById(id);
     if (u.id === 0) return null;
     return new UserDto(u.id, u.username, u.email, u.role, u.isActive);
+  }
+
+  async getPublicProfile(id: number): Promise<PublicUserDto | null> {
+    return this.userRepo.findPublicById(id);
   }
 
   async deactivate(id: number): Promise<boolean> {
