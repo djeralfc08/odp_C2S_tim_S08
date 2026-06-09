@@ -27,8 +27,8 @@ export class TournamentService implements ITournamentService {
     return rows.map((t) => this.toDto(t));
   }
 
-  async getById(id: number): Promise<TournamentDto | null> {
-    const tournament = await this.tournamentRepo.findById(id);
+  async getById(id: number, fromWrite = false): Promise<TournamentDto | null> {
+    const tournament = await this.tournamentRepo.findById(id, fromWrite);
     if (!tournament) return null;
     return this.toDto(tournament);
   }

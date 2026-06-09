@@ -52,8 +52,10 @@ export class TournamentRepository implements ITournamentRepository {
     );
   }
 
-  async findById(id: number): Promise<Tournament | null> {
-    const res = await this.db.getReadConnection();
+  async findById(id: number, fromWrite = false): Promise<Tournament | null> {
+    const res = fromWrite
+      ? await this.db.getWriteConnection()
+      : await this.db.getReadConnection();
     if (!res) return null;
 
     try {
@@ -88,7 +90,9 @@ export class TournamentRepository implements ITournamentRepository {
   }
 
   async findAll(filters: TournamentFilters = {}): Promise<Tournament[]> {
-    const res = await this.db.getReadConnection();
+    const res = filters.fromWrite
+      ? await this.db.getWriteConnection()
+      : await this.db.getReadConnection();
     if (!res) return [];
 
     const clauses: string[] = [];
@@ -205,10 +209,23 @@ export class TournamentRepository implements ITournamentRepository {
 
     try {
       const [result] = await res.conn.execute<ResultSetHeader>(
-        `UPDATE tournaments SET ${fields.join(", ")} WHERE id = ?`,
+        `UPDATE tournaments SET ${fields.join(", ")}, updated_at = NOW() WHERE id = ?`,
         [...values, id],
       );
-      return result.affectedRows > 0;
+      if (result.affectedRows === 0) return false;
+
+      if (dto.status !== undefined) {
+        const updated = await this.fetchById(res.conn, id);
+        if (!updated || updated.status !== dto.status) {
+          this.logger.error(
+            "TournamentRepository",
+            `status not persisted for tournament ${id}: expected ${dto.status}, got ${updated?.status ?? "null"}`,
+          );
+          return false;
+        }
+      }
+
+      return true;
     } catch {
       this.logger.error("TournamentRepository", "update failed");
       return false;

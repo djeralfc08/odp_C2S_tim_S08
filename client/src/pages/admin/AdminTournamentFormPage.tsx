@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { usePageTitle } from "../../hooks/usePageTitle";
 import { useNavigate, useParams } from "react-router-dom";
 import { tournamentsApi } from "../../api_services/tournaments/TournamentsAPIService";
@@ -28,10 +28,15 @@ export function AdminTournamentFormPage() {
   const [loading, setLoading] = useState(false);
   const [fetchLoading, setFetchLoading] = useState(isEdit);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const statusTouched = useRef(false);
 
   useEffect(() => {
     if (!isEdit || !id) return;
+    statusTouched.current = false;
+    let cancelled = false;
+    setFetchLoading(true);
     tournamentsApi.getById(parseInt(id)).then(r => {
+      if (cancelled) return;
       if (r.success && r.data) {
         const t = r.data;
         setName(t.name);
@@ -41,11 +46,12 @@ export function AdminTournamentFormPage() {
         setDeadline(t.registration_deadline.split("T")[0]);
         setStartDate(t.starts_at.split("T")[0]);
         setPrizePool(t.prize_pool ?? "");
-        setStatus(t.status);
+        if (!statusTouched.current) setStatus(t.status);
       }
       setFetchLoading(false);
     });
-  }, [id]);
+    return () => { cancelled = true; };
+  }, [id, isEdit]);
 
   const validate = () => {
     const e: Record<string, string> = {};
@@ -59,8 +65,9 @@ export function AdminTournamentFormPage() {
     if (!startDate) e.startDate = "Obavezan datum";
     if (deadline && startDate && new Date(deadline) >= new Date(startDate))
       e.deadline = "Rok prijave mora biti pre datuma početka";
-    if (deadline && new Date(deadline) <= new Date())
+    if (!isEdit && deadline && new Date(deadline) <= new Date())
       e.deadline = "Rok prijave mora biti u budućnosti";
+    if (isEdit && !status) e.status = "Izaberi status";
     return e;
   };
 
@@ -75,6 +82,11 @@ export function AdminTournamentFormPage() {
       prize_pool: prizePool || undefined,
       ...(isEdit ? { status } : {}),
     };
+    if (isEdit && !dto.status) {
+      setErrors({ general: "Status turnira nije izabran" });
+      setLoading(false);
+      return;
+    }
     const res = isEdit && id
       ? await tournamentsApi.update(parseInt(id), dto)
       : await tournamentsApi.create(dto);
@@ -121,7 +133,7 @@ export function AdminTournamentFormPage() {
           </div>
 
           {isEdit && (
-            <Select label="Status turnira" value={status} onChange={v => setStatus(v as TournamentStatus)}
+            <Select label="Status turnira" value={status} onChange={v => { statusTouched.current = true; setStatus(v as TournamentStatus); }}
               options={[
                 { value: "draft", label: "Nacrt" },
                 { value: "registration_open", label: "Prijave otvorene" },

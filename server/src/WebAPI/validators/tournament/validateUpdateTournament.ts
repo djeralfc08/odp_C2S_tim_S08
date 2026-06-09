@@ -3,7 +3,7 @@ import { UpdateTournamentDto } from "../../../Domain/DTOs/tournament/CreateTourn
 import { TournamentFormat } from "../../../Domain/enums/TournamentFormat";
 import { TournamentStatus } from "../../../Domain/enums/TournamentStatus";
 import {
-  validateTournamentDates,
+  validateTournamentDatesForUpdate,
   validateTournamentFormat,
   validateTournamentMaxTeams,
   validateTournamentName,
@@ -81,16 +81,16 @@ export const validateUpdateTournament = (
   const startsAt = dto.starts_at ?? context.currentStartsAt;
 
   if (deadline && startsAt) {
-    const datesCheck = validateTournamentDates(deadline, startsAt);
+    const datesCheck = validateTournamentDatesForUpdate(deadline, startsAt);
     if (!datesCheck.valid) return datesCheck;
   } else if (dto.registration_deadline && context.currentStartsAt) {
-    const datesCheck = validateTournamentDates(
+    const datesCheck = validateTournamentDatesForUpdate(
       dto.registration_deadline,
       context.currentStartsAt,
     );
     if (!datesCheck.valid) return datesCheck;
   } else if (context.currentRegistrationDeadline && dto.starts_at) {
-    const datesCheck = validateTournamentDates(
+    const datesCheck = validateTournamentDatesForUpdate(
       context.currentRegistrationDeadline,
       dto.starts_at,
     );

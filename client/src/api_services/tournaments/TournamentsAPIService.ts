@@ -12,7 +12,7 @@ const authHeader = () => ({ Authorization: `Bearer ${readItem("authToken")}` });
 type ErrBody = { message?: string };
 
 export const tournamentsApi = {
-  async getAll(params?: { game_id?: number; status?: string; format?: string }): Promise<{ success: boolean; data?: Tournament[]; message?: string }> {
+  async getAll(params?: { game_id?: number; status?: string; format?: string; fresh?: boolean }): Promise<{ success: boolean; data?: Tournament[]; message?: string }> {
     return axios.get<{ success: boolean; data: Tournament[] }>(BASE, { params })
       .then(r => r.data).catch((e: AxiosError<ErrBody>) => apiError(e, "Greska pri ucitavanju turnira"));
   },
@@ -24,8 +24,8 @@ export const tournamentsApi = {
     return axios.post<{ success: boolean; data: Tournament }>(BASE, dto, { headers: authHeader() })
       .then(r => r.data).catch((e: AxiosError<ErrBody>) => apiError(e, "Greska pri kreiranju turnira"));
   },
-  async update(id: number, dto: UpdateTournamentDto): Promise<{ success: boolean; message?: string }> {
-    return axios.put<{ success: boolean }>(`${BASE}/${id}`, dto, { headers: authHeader() })
+  async update(id: number, dto: UpdateTournamentDto): Promise<{ success: boolean; data?: Tournament; message?: string }> {
+    return axios.put<{ success: boolean; data?: Tournament }>(`${BASE}/${id}`, dto, { headers: authHeader() })
       .then(r => r.data).catch((e: AxiosError<ErrBody>) => apiError(e, "Greska pri izmeni turnira"));
   },
   async remove(id: number): Promise<{ success: boolean; message?: string }> {

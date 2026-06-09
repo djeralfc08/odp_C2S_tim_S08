@@ -64,3 +64,22 @@ export const validateTournamentDates = (
   }
   return { valid: true };
 };
+
+export const validateTournamentDatesForUpdate = (
+  registrationDeadline: string,
+  startsAt: string,
+): ValidationResult => {
+  const deadline = new Date(registrationDeadline);
+  const start = new Date(startsAt);
+
+  if (isNaN(deadline.getTime()) || isNaN(start.getTime())) {
+    return { valid: false, message: "Nevalidan format datuma" };
+  }
+  if (deadline >= start) {
+    return {
+      valid: false,
+      message: "Rok prijave mora biti pre početka turnira",
+    };
+  }
+  return { valid: true };
+};

@@ -9,6 +9,7 @@ export const validateListFilters = (query: {
   game_id?: string;
   status?: string;
   format?: string;
+  fresh?: string;
 }): ListFiltersValidation => {
   const filters: TournamentFilters = {};
 
@@ -32,6 +33,10 @@ export const validateListFilters = (query: {
       return { valid: false, message: "Invalid format filter" };
     }
     filters.format = query.format;
+  }
+
+  if (query.fresh === "1" || query.fresh === "true") {
+    filters.fromWrite = true;
   }
 
   return { valid: true, filters };

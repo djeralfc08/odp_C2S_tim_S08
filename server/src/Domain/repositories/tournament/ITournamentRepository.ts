@@ -5,10 +5,11 @@ export type TournamentFilters = {
   gameId?: number;
   status?: string;
   format?: string;
+  fromWrite?: boolean;
 };
 
 export interface ITournamentRepository {
-  findById(id: number): Promise<Tournament | null>;
+  findById(id: number, fromWrite?: boolean): Promise<Tournament | null>;
   findByName(name: string): Promise<Tournament | null>;
   findAll(filters?: TournamentFilters): Promise<Tournament[]>;
   create(dto: CreateTournamentDto): Promise<Tournament>;

@@ -58,6 +58,7 @@ export class TournamentController {
       game_id: req.query.game_id as string | undefined,
       status: req.query.status as string | undefined,
       format: req.query.format as string | undefined,
+      fresh: req.query.fresh as string | undefined,
     });
     if (!filtersCheck.valid) {
       res.status(400).json({ success: false, message: filtersCheck.message });
@@ -131,10 +132,11 @@ export class TournamentController {
 
     const ok = await this.tournamentService.update(req.user!.id, idCheck.value!, v.dto!);
     if (!ok) {
-      res.status(404).json({ success: false, message: "Tournament not found or update failed" });
+      res.status(409).json({ success: false, message: "Izmene nisu sačuvane (proveri status i datume)" });
       return;
     }
-    res.status(200).json({ success: true });
+    const updated = await this.tournamentService.getById(idCheck.value!, true);
+    res.status(200).json({ success: true, data: updated });
   }
 
   private async delete(req: Request, res: Response): Promise<void> {

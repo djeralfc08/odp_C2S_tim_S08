@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { usePageTitle } from "../../hooks/usePageTitle";
-import { Link, useNavigate } from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { tournamentsApi } from "../../api_services/tournaments/TournamentsAPIService";
 import type { Tournament } from "../../types/tournament";
 import { PageHeader, Btn, StatusBadge, FormatBadge, Spinner, Empty, ErrorBox, SuccessBox, Table, TableHead } from "../../components/ui/UI";
@@ -14,17 +14,18 @@ export function AdminTournamentsPage() {
   const [msgType, setMsgType] = useState<"success" | "error">("success");
   const [deleting, setDeleting] = useState<number | null>(null);
   const navigate = useNavigate();
+  const location = useLocation();
 
   const load = () => {
     setLoading(true);
-    tournamentsApi.getAll().then(r => {
+    tournamentsApi.getAll({ fresh: true }).then(r => {
       if (r.success && r.data) setTournaments(r.data);
       else setError(r.message ?? "Greška");
       setLoading(false);
     });
   };
 
-  useEffect(() => { load(); }, []);
+  useEffect(() => { load(); }, [location.key]);
 
   const showMsg = (m: string, type: "success" | "error" = "success") => {
     setMsg(m); setMsgType(type); setTimeout(() => setMsg(null), 3000);
