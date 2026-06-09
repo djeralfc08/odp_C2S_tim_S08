@@ -3,8 +3,9 @@ export interface AuditLog {
   user_id: number | null;
   username: string | null;
   action: string;
+  entity: string | null;
+  entity_id: number | null;
   details: string | null;
-  ip_address: string | null;
   created_at: string;
 }
 

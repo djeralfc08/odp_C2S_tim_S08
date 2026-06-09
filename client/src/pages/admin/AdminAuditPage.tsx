@@ -6,6 +6,11 @@ import { PageHeader, Spinner, ErrorBox, Pagination, Table, TableHead } from "../
 
 const PAGE_SIZE = 20;
 
+function formatEntity(log: AuditLog): string | null {
+  if (!log.entity) return null;
+  return log.entity_id != null ? `${log.entity} #${log.entity_id}` : log.entity;
+}
+
 export function AdminAuditPage() {
   usePageTitle("Admin | Audit log");
   const [logs, setLogs] = useState<AuditLog[]>([]);
@@ -20,8 +25,8 @@ export function AdminAuditPage() {
     setError(null);
     auditsApi.getLogs(p, PAGE_SIZE).then(r => {
       if (r.success && r.data) {
-        setLogs(r.data.items);
-        setTotal(r.data.total);
+        setLogs(r.data.items ?? []);
+        setTotal(r.data.total ?? 0);
       } else {
         setError(r.message ?? "Greška");
       }
@@ -35,6 +40,7 @@ export function AdminAuditPage() {
     ? logs.filter(l =>
         (l.action ?? "").toLowerCase().includes(search.toLowerCase()) ||
         (l.username ?? "").toLowerCase().includes(search.toLowerCase()) ||
+        (l.entity ?? "").toLowerCase().includes(search.toLowerCase()) ||
         (l.details ?? "").toLowerCase().includes(search.toLowerCase())
       )
     : logs;
@@ -64,7 +70,7 @@ export function AdminAuditPage() {
       ) : (
         <>
           <Table>
-            <TableHead columns={["Vreme", "Korisnik", "Akcija", "Detalji", "IP adresa"]} />
+            <TableHead columns={["Vreme", "Korisnik", "Akcija", "Entitet", "Detalji"]} />
             <tbody>
               {filtered.map(log => (
                 <tr key={log.id} className="border-b border-white/4 last:border-0 hover:bg-white/1 transition-colors">
@@ -79,11 +85,11 @@ export function AdminAuditPage() {
                       {log.action}
                     </span>
                   </td>
+                  <td className="px-5 py-3 text-xs text-gray-600 font-mono">
+                    {formatEntity(log) ?? <span className="text-gray-400">—</span>}
+                  </td>
                   <td className="px-5 py-3 text-xs text-gray-500 max-w-xs truncate">
                     {log.details ?? <span className="text-gray-400">—</span>}
-                  </td>
-                  <td className="px-5 py-3 text-xs text-gray-500 font-mono">
-                    {log.ip_address ?? "—"}
                   </td>
                 </tr>
               ))}
