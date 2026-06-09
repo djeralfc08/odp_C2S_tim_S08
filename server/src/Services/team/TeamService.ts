@@ -1,12 +1,15 @@
 import { ITeamService } from "../../Domain/services/team/ITeamService";
 import { ITeamRepository } from "../../Domain/repositories/team/ITeamRepository";
+import { IAuditService } from "../../Domain/services/audit/IAuditService";
 import { Team} from "../../Domain/models/Team";
 import { CreateTeamDto, UpdateTeamDto } from "../../Domain/DTOs/team/CreateTeamDto";
-import { User } from "../../Domain/models/User";
 import { TeamDetailDto } from "../../Domain/DTOs/team/TeamDetailDto";
 
 export class TeamService implements ITeamService{
-    public constructor(private readonly teamRepo: ITeamRepository){}
+    public constructor(
+        private readonly teamRepo: ITeamRepository,
+        private readonly auditService: IAuditService,
+    ){}
     
     async create(userId: number, dto: CreateTeamDto): Promise<Team>
     {
@@ -32,6 +35,7 @@ export class TeamService implements ITeamService{
             return new Team();
         }
 
+        await this.auditService.log(userId, "CREATE", "team", created.id);
         return created;
     }
       
@@ -61,16 +65,10 @@ export class TeamService implements ITeamService{
   return await this.teamRepo.findByUserId(userId);
 }
     async update(id: number, userId: number, dto: UpdateTeamDto): Promise<boolean> {
-        console.log("UPDATE TEAM:", { id, userId, dto });
-        
         const existing = await this.teamRepo.findById(id);
-        console.log("EXISTING TEAM:", existing);
         if( existing.id === 0) return false;
-        
 
         const isCaptian = await this.teamRepo.isCaptain(id,userId);
-        console.log("IS CAPTAIN:", isCaptian);
-
         if( !isCaptian ) return false;
 
         const updated = new Team(
@@ -83,7 +81,9 @@ export class TeamService implements ITeamService{
             existing.updatedAt
         );
 
-        return await this.teamRepo.update(updated);
+        const ok = await this.teamRepo.update(updated);
+        if (ok) await this.auditService.log(userId, "UPDATE", "team", id);
+        return ok;
     }
     async delete(id: number, userId: number): Promise<boolean> {
         const existing = await this.teamRepo.findById(id);
@@ -92,7 +92,9 @@ export class TeamService implements ITeamService{
         const isCaptian = await this.teamRepo.isCaptain(id,userId);
         if( !isCaptian ) return false;
 
-        return await this.teamRepo.delete(id);
+        const ok = await this.teamRepo.delete(id);
+        if (ok) await this.auditService.log(userId, "DELETE", "team", id);
+        return ok;
 
     }
     async isCaptian(teamId: number, userId: number): Promise<boolean> {
@@ -105,7 +107,11 @@ export class TeamService implements ITeamService{
         const alreadyMember = await this.teamRepo.isMember(teamId,userId);
         if( alreadyMember ) return false;
 
-        return await this.teamRepo.addMember(teamId,userId);
+        const ok = await this.teamRepo.addMember(teamId,userId);
+        if (ok) {
+            await this.auditService.log(null, "ADD_MEMBER", "team", teamId, `user_id=${userId}`);
+        }
+        return ok;
     }
     
 
@@ -119,7 +125,11 @@ export class TeamService implements ITeamService{
     const userToRemoveIsCaptain = await this.teamRepo.isCaptain(teamId, userIdToRemove);
     if (userToRemoveIsCaptain) return false;
 
-    return await this.teamRepo.removeMember(teamId, userIdToRemove);
+    const ok = await this.teamRepo.removeMember(teamId, userIdToRemove);
+    if (ok) {
+        await this.auditService.log(currentUserId, "REMOVE_MEMBER", "team", teamId, `user_id=${userIdToRemove}`);
+    }
+    return ok;
 }
 
 
@@ -134,7 +144,11 @@ export class TeamService implements ITeamService{
 
         if( !oldCaptaindDemoted ) return false;
 
-        return await this.teamRepo.changeMemberRole(teamId,newCaptainId,"captain");
+        const ok = await this.teamRepo.changeMemberRole(teamId,newCaptainId,"captain");
+        if (ok) {
+            await this.auditService.log(currentUserId, "TRANSFER_CAPTAIN", "team", teamId, `new_captain_id=${newCaptainId}`);
+        }
+        return ok;
     }
 
     
@@ -145,7 +159,9 @@ export class TeamService implements ITeamService{
         const isCaptain = await this.teamRepo.isCaptain(teamId, userId);
         if (isCaptain) return false;
 
-        return await this.teamRepo.removeMember(teamId, userId);
+        const ok = await this.teamRepo.removeMember(teamId, userId);
+        if (ok) await this.auditService.log(userId, "LEAVE_TEAM", "team", teamId);
+        return ok;
         }
     
     async invitePlayer(teamId: number,captainId: number,userId: number): Promise<boolean> {
@@ -155,7 +171,11 @@ export class TeamService implements ITeamService{
         const alreadyMember = await this.teamRepo.isMember(teamId, userId);
         if (alreadyMember) return false;
 
-        return await this.teamRepo.sendInvitation(teamId, userId);
+        const ok = await this.teamRepo.sendInvitation(teamId, userId);
+        if (ok) {
+            await this.auditService.log(captainId, "INVITE_PLAYER", "team", teamId, `user_id=${userId}`);
+        }
+        return ok;
         }
 
 async respondToInvitation(teamId: number, userId: number, status: "accepted" | "rejected"): Promise<boolean> {
@@ -163,9 +183,14 @@ async respondToInvitation(teamId: number, userId: number, status: "accepted" | "
     if (!responded) return false;
 
     if (status === "accepted") {
-        return await this.teamRepo.addMember(teamId, userId);
+        const added = await this.teamRepo.addMember(teamId, userId);
+        if (added) {
+            await this.auditService.log(userId, "INVITE_ACCEPTED", "team", teamId);
+        }
+        return added;
     }
 
+    await this.auditService.log(userId, "INVITE_REJECTED", "team", teamId);
     return true;
     }
 

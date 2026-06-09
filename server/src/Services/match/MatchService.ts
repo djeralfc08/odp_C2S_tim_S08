@@ -1,12 +1,16 @@
 import { IMatchService } from "../../Domain/services/match/IMatchService";
 import { IMatchRepository } from "../../Domain/repositories/match/IMatchRepository";
+import { IAuditService } from "../../Domain/services/audit/IAuditService";
 import { Match } from "../../Domain/models/Match";
 import { MatchDetailDto } from "../../Domain/DTOs/match/MatchDetailDto";
 import { AddMatchPlayerDto } from "../../Domain/DTOs/match/AddMatchPlayerDto";
 import { SetMatchResultDto } from "../../Domain/DTOs/match/SetMatchResultDto";
 
 export class MatchService implements IMatchService {
-  public constructor(private readonly matchRepo: IMatchRepository) {}
+  public constructor(
+    private readonly matchRepo: IMatchRepository,
+    private readonly auditService: IAuditService,
+  ) {}
 
   async getByTournamentId(tournamentId: number): Promise<Match[]> {
     return await this.matchRepo.findByTournamentId(tournamentId);
@@ -32,7 +36,7 @@ export class MatchService implements IMatchService {
   }
 
   
-  async setResult(matchId: number, dto: SetMatchResultDto): Promise<boolean> {
+  async setResult(matchId: number, userId: number, dto: SetMatchResultDto): Promise<boolean> {
   if (!this.isValidScore(dto.score)) {
     return false;
   }
@@ -70,6 +74,13 @@ export class MatchService implements IMatchService {
   );
 
   if (!nextMatch) {
+    await this.auditService.log(
+      userId,
+      "SET_RESULT",
+      "match",
+      matchId,
+      `score=${dto.score},winner_id=${dto.winner_id}`,
+    );
     return true;
   }
 
@@ -81,6 +92,13 @@ export class MatchService implements IMatchService {
     slot
   );
 
+  await this.auditService.log(
+    userId,
+    "SET_RESULT",
+    "match",
+    matchId,
+    `score=${dto.score},winner_id=${dto.winner_id}`,
+  );
   return true;
 }
 async addPlayer(
@@ -101,12 +119,22 @@ async addPlayer(
   const isCaptain = await this.matchRepo.isUserCaptainOfTeam(currentUserId, dto.team_id);
   if (!isCaptain) return false;
 
-  return await this.matchRepo.addPlayer(
+  const ok = await this.matchRepo.addPlayer(
     matchId,
     dto.user_id,
     dto.team_id,
     dto.performance_notes
   );
+  if (ok) {
+    await this.auditService.log(
+      currentUserId,
+      "ADD_PLAYER",
+      "match",
+      matchId,
+      `user_id=${dto.user_id},team_id=${dto.team_id}`,
+    );
+  }
+  return ok;
 }
 
   async updatePlayerNotes(
@@ -128,7 +156,17 @@ async addPlayer(
   const isCaptain = await this.matchRepo.isUserCaptainOfTeam(currentUserId, player.team_id);
   if (!isCaptain) return false;
 
-  return await this.matchRepo.updatePlayerNotes(matchId, userId, notes);
+  const ok = await this.matchRepo.updatePlayerNotes(matchId, userId, notes);
+  if (ok) {
+    await this.auditService.log(
+      currentUserId,
+      "UPDATE_PLAYER_NOTES",
+      "match",
+      matchId,
+      `user_id=${userId}`,
+    );
+  }
+  return ok;
 }
 
   async removePlayer(
@@ -149,7 +187,17 @@ async addPlayer(
   const isCaptain = await this.matchRepo.isUserCaptainOfTeam(currentUserId, player.team_id);
   if (!isCaptain) return false;
 
-  return await this.matchRepo.removePlayer(matchId, userId);
+  const ok = await this.matchRepo.removePlayer(matchId, userId);
+  if (ok) {
+    await this.auditService.log(
+      currentUserId,
+      "REMOVE_PLAYER",
+      "match",
+      matchId,
+      `user_id=${userId}`,
+    );
+  }
+  return ok;
 }
 
 

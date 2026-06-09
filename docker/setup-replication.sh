@@ -197,6 +197,13 @@ if [ "${MASTER_TABLES:-0}" -lt "2" ]; then
   echo "  ERROR: Schema creation failed on Master"
   exit 1
 fi
+AUDIT_OK=$($M -s --skip-column-names \
+  -e "SELECT COUNT(*) FROM information_schema.tables WHERE table_schema='${DB_NAME}' AND table_name='audit_logs';" 2>/dev/null)
+if [ "${AUDIT_OK:-0}" != "1" ]; then
+  echo "  ERROR: audit_logs table missing after schema step"
+  exit 1
+fi
+echo "  audit_logs: OK"
 
 # ── 3. Lock Master, get binlog position, dump schema ─────────
 echo ""

@@ -93,7 +93,7 @@ export class MatchController {
       return;
     }
 
-    const ok = await this.matchService.setResult(idCheck.value!, dto);
+    const ok = await this.matchService.setResult(idCheck.value!, req.user!.id, dto);
 
     if (!ok) {
       res.status(400).json({

@@ -42,7 +42,13 @@ export function RegisterForm({ authApi }: { authApi: IAuthAPIService }) {
     setErrors({});
     setServerError("");
     setLoading(true);
-    const res = await authApi.register(username, email, password, "user");
+    const res = await authApi.register({
+      gamer_tag: username,
+      full_name: realName.trim() || undefined,
+      email,
+      password,
+      role: "user",
+    });
     setLoading(false);
     if (!res.success || !res.data) {
       setServerError(res.message ?? "Registracija neuspešna");

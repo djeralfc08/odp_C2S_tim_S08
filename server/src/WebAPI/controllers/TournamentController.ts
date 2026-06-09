@@ -95,7 +95,7 @@ export class TournamentController {
       return;
     }
 
-    const created = await this.tournamentService.create(v.dto!);
+    const created = await this.tournamentService.create(req.user!.id, v.dto!);
     if (created == null) {
       res.status(409).json({
         success: false,
@@ -129,7 +129,7 @@ export class TournamentController {
       return;
     }
 
-    const ok = await this.tournamentService.update(idCheck.value!, v.dto!);
+    const ok = await this.tournamentService.update(req.user!.id, idCheck.value!, v.dto!);
     if (!ok) {
       res.status(404).json({ success: false, message: "Tournament not found or update failed" });
       return;
@@ -144,7 +144,7 @@ export class TournamentController {
       return;
     }
 
-    const ok = await this.tournamentService.delete(idCheck.value!);
+    const ok = await this.tournamentService.delete(req.user!.id, idCheck.value!);
     if (!ok) {
       res.status(404).json({ success: false, message: "Tournament not found" });
       return;

@@ -2,8 +2,9 @@ import axios from "axios";
 import type { AuthResponse } from "../../types/auth/AuthResponse";
 import type { IAuthAPIService, RegisterPayload } from "./IAuthAPIService";
 import { readItem } from "../../helpers/local_storage";
+import { apiUrl } from "../../config/api";
 
-const BASE = import.meta.env.VITE_API_URL + "auth";
+const BASE = apiUrl("auth");
 const authHeader = () => ({ Authorization: `Bearer ${readItem("authToken")}` });
 const err = (e: unknown, fallback: string): AuthResponse => ({
   success: false,

@@ -1,6 +1,7 @@
 import { IWatchlistService } from "../../Domain/services/watchlist/IWatchlistService";
 import { IWatchlistRepository } from "../../Domain/repositories/watchlist/IWatchlistRepository";
 import { ITournamentRepository } from "../../Domain/repositories/tournament/ITournamentRepository";
+import { IAuditService } from "../../Domain/services/audit/IAuditService";
 import { TournamentDto } from "../../Domain/DTOs/tournament/CreateTournamentDto";
 import { Tournament } from "../../Domain/models/Tournament";
 
@@ -8,6 +9,7 @@ export class WatchlistService implements IWatchlistService {
   public constructor(
     private readonly watchlistRepo: IWatchlistRepository,
     private readonly tournamentRepo: ITournamentRepository,
+    private readonly auditService: IAuditService,
   ) {}
 
   async getByUserId(userId: number): Promise<TournamentDto[]> {
@@ -18,11 +20,15 @@ export class WatchlistService implements IWatchlistService {
   async add(userId: number, tournamentId: number): Promise<boolean> {
     const tournament = await this.tournamentRepo.findById(tournamentId);
     if (!tournament) return false;
-    return this.watchlistRepo.add(userId, tournamentId);
+    const ok = await this.watchlistRepo.add(userId, tournamentId);
+    if (ok) await this.auditService.log(userId, "WATCHLIST_ADD", "tournament", tournamentId);
+    return ok;
   }
 
   async remove(userId: number, tournamentId: number): Promise<boolean> {
-    return this.watchlistRepo.remove(userId, tournamentId);
+    const ok = await this.watchlistRepo.remove(userId, tournamentId);
+    if (ok) await this.auditService.log(userId, "WATCHLIST_REMOVE", "tournament", tournamentId);
+    return ok;
   }
 
   private toDto(tournament: Tournament): TournamentDto {

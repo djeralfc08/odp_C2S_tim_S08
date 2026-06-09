@@ -1,4 +1,5 @@
 import { ITournamentService } from "../../Domain/services/tournament/ITournamentService";
+import { IAuditService } from "../../Domain/services/audit/IAuditService";
 import {
   ITournamentRepository,
   TournamentFilters,
@@ -16,7 +17,10 @@ import {
 } from "../../Domain/validators/tournament/tournamentFieldRules";
 
 export class TournamentService implements ITournamentService {
-  public constructor(private readonly tournamentRepo: ITournamentRepository) {}
+  public constructor(
+    private readonly tournamentRepo: ITournamentRepository,
+    private readonly auditService: IAuditService,
+  ) {}
 
   async getAll(filters?: TournamentFilters): Promise<TournamentDto[]> {
     const rows = await this.tournamentRepo.findAll(filters);
@@ -29,7 +33,7 @@ export class TournamentService implements ITournamentService {
     return this.toDto(tournament);
   }
 
-  async create(dto: CreateTournamentDto): Promise<TournamentDto | null> {
+  async create(userId: number, dto: CreateTournamentDto): Promise<TournamentDto | null> {
     if (!validateTournamentName(dto.name).valid) return null;
     if (!dto.game_id || dto.game_id < 1) return null;
     if (!Object.values(TournamentFormat).includes(dto.format)) return null;
@@ -42,10 +46,11 @@ export class TournamentService implements ITournamentService {
     const created = await this.tournamentRepo.create(dto);
     if (created.id === 0) return null;
 
+    await this.auditService.log(userId, "CREATE", "tournament", created.id);
     return this.toDto(created);
   }
 
-  async update(id: number, dto: UpdateTournamentDto): Promise<boolean> {
+  async update(userId: number, id: number, dto: UpdateTournamentDto): Promise<boolean> {
     const current = await this.tournamentRepo.findById(id);
     if (!current) return false;
 
@@ -63,13 +68,17 @@ export class TournamentService implements ITournamentService {
       if (duplicate && duplicate.id !== id) return false;
     }
 
-    return this.tournamentRepo.update(id, dto);
+    const ok = await this.tournamentRepo.update(id, dto);
+    if (ok) await this.auditService.log(userId, "UPDATE", "tournament", id);
+    return ok;
   }
 
-  async delete(id: number): Promise<boolean> {
+  async delete(userId: number, id: number): Promise<boolean> {
     const current = await this.tournamentRepo.findById(id);
     if (!current) return false;
-    return this.tournamentRepo.delete(id);
+    const ok = await this.tournamentRepo.delete(id);
+    if (ok) await this.auditService.log(userId, "DELETE", "tournament", id);
+    return ok;
   }
 
   private toDto(tournament: Tournament): TournamentDto {

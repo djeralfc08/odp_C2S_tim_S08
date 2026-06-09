@@ -1,8 +1,9 @@
 import axios from "axios";
 import type { Team, TeamDetail, CreateTeamDto, UpdateTeamDto } from "../../types/team";
 import { readItem } from "../../helpers/local_storage";
+import { apiUrl } from "../../config/api";
 
-const BASE = import.meta.env.VITE_API_URL + "teams";
+const BASE = apiUrl("teams");
 const authHeader = () => ({ Authorization: `Bearer ${readItem("authToken")}` });
 const err = (e: unknown, fallback: string) => ({
   success: false as const,

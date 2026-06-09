@@ -10,7 +10,7 @@ export interface IMatchService {
 
   getMyMatches(userId: number): Promise<Match[]>;
 
-  setResult(matchId: number, dto: SetMatchResultDto): Promise<boolean>;
+  setResult(matchId: number, userId: number, dto: SetMatchResultDto): Promise<boolean>;
 
   addPlayer(matchId: number, currentUserId: number, dto: AddMatchPlayerDto): Promise<boolean>;
 

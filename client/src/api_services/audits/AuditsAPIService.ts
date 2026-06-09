@@ -1,8 +1,9 @@
 import axios from "axios";
 import type { PaginatedAuditLogs } from "../../types/audit";
 import { readItem } from "../../helpers/local_storage";
+import { apiUrl } from "../../config/api";
 
-const BASE = import.meta.env.VITE_API_URL + "audits";
+const BASE = apiUrl("audits");
 const authHeader = () => ({ Authorization: `Bearer ${readItem("authToken")}` });
 const err = (e: unknown, fallback: string) => ({
   success: false as const,

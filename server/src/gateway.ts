@@ -16,7 +16,6 @@ type ReqWithLb = Request & { lbServer?: ApiServer };
 
 const app = express();
 app.use(cors({ origin: process.env.CLIENT_URL ?? "*" }));
-app.use(express.json());
 
 app.use("/api/v1", new HealthController(db, loadBalancer).getRouter());
 
@@ -24,6 +23,8 @@ app.use(
   "/api/v1",
   createProxyMiddleware({
     changeOrigin: true,
+    pathFilter: (pathname) => !pathname.startsWith("/health"),
+    pathRewrite: (path) => `/api/v1${path}`,
     router: (req) => {
       const expressReq = req as Request;
       const server = loadBalancer.pickServer(expressReq.ip);
@@ -49,7 +50,6 @@ app.use(
         }
       },
     },
-    pathFilter: (pathname) => !pathname.startsWith("/health"),
   }),
 );
 
