@@ -3,7 +3,7 @@ import { usePageTitle } from "../../hooks/usePageTitle";
 import { useNavigate, useParams } from "react-router-dom";
 import { tournamentsApi } from "../../api_services/tournaments/TournamentsAPIService";
 import { useGames } from "../../hooks/games/useGames";
-import type { TournamentFormat } from "../../types/tournament";
+import type { TournamentFormat, TournamentStatus } from "../../types/tournament";
 import { PageHeader, Btn, Input, Select, Spinner, ErrorBox, Card } from "../../components/ui/UI";
 
 function isPowerOfTwo(n: number) {
@@ -24,6 +24,7 @@ export function AdminTournamentFormPage() {
   const [deadline, setDeadline] = useState("");
   const [startDate, setStartDate] = useState("");
   const [prizePool, setPrizePool] = useState("");
+  const [status, setStatus] = useState<TournamentStatus>("registration_open");
   const [loading, setLoading] = useState(false);
   const [fetchLoading, setFetchLoading] = useState(isEdit);
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -38,8 +39,9 @@ export function AdminTournamentFormPage() {
         setFormat(t.format);
         setMaxTeams(String(t.max_teams));
         setDeadline(t.registration_deadline.split("T")[0]);
-        setStartDate(t.start_date.split("T")[0]);
+        setStartDate(t.starts_at.split("T")[0]);
         setPrizePool(t.prize_pool ?? "");
+        setStatus(t.status);
       }
       setFetchLoading(false);
     });
@@ -69,8 +71,9 @@ export function AdminTournamentFormPage() {
     setErrors({});
     const dto = {
       name, game_id: parseInt(gameId), format, max_teams: parseInt(maxTeams),
-      registration_deadline: deadline, start_date: startDate,
+      registration_deadline: deadline, starts_at: startDate,
       prize_pool: prizePool || undefined,
+      ...(isEdit ? { status } : {}),
     };
     const res = isEdit && id
       ? await tournamentsApi.update(parseInt(id), dto)
@@ -116,6 +119,19 @@ export function AdminTournamentFormPage() {
             <Input label="Datum početka" type="date" value={startDate}
               onChange={setStartDate} required error={errors.startDate} />
           </div>
+
+          {isEdit && (
+            <Select label="Status turnira" value={status} onChange={v => setStatus(v as TournamentStatus)}
+              options={[
+                { value: "draft", label: "Nacrt" },
+                { value: "registration_open", label: "Prijave otvorene" },
+                { value: "registration_locked", label: "Prijave zaključane" },
+                { value: "in_progress", label: "U toku" },
+                { value: "completed", label: "Završen" },
+                { value: "cancelled", label: "Otkazan" },
+              ]}
+            />
+          )}
 
           <div className="flex gap-3 justify-end pt-2">
             <Btn variant="secondary" onClick={() => navigate("/admin/tournaments")}>Otkaži</Btn>

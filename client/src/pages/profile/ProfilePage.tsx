@@ -23,6 +23,8 @@ export function ProfilePage() {
         setProfile(r.data);
         setRealName(r.data.real_name ?? "");
         setAvatarUrl(r.data.avatar_url ?? "");
+      } else {
+        setError(r.message ?? "Greška pri učitavanju profila");
       }
       setLoading(false);
     });
@@ -45,6 +47,15 @@ export function ProfilePage() {
   };
 
   if (loading) return <div className="flex justify-center py-20"><Spinner size={32} /></div>;
+
+  if (error && !profile) {
+    return (
+      <div>
+        <PageHeader eyebrow="Nalog" title="Podešavanja profila" />
+        <ErrorBox message={error} />
+      </div>
+    );
+  }
 
   return (
     <div>

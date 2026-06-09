@@ -13,7 +13,7 @@ export class CreateTournamentDto {
   ) {}
 }
 
-export type UpdateTournamentDto = Partial<CreateTournamentDto>;
+export type UpdateTournamentDto = Partial<CreateTournamentDto> & { status?: string };
 
 export class TournamentDto {
   constructor(

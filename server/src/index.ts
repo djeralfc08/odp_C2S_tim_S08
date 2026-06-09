@@ -11,7 +11,7 @@ async function start(): Promise<void> {
   });
 }
 
-start().catch((err) => logger.error("Server", "Fatal startup error", err));
+start().catch((err: Error) => logger.error("Server", "Fatal startup error", err));
 
 process.on("SIGINT", () => {
   db.stop();

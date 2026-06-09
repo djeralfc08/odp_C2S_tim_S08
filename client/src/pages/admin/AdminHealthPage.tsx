@@ -98,7 +98,7 @@ export function AdminHealthPage() {
               <table className="w-full text-sm">
                 <thead>
                   <tr className="border-b border-gray-200">
-                    {["Čvor", "Uloga", "Host", "Port", "Status", "Latencija", "Poslednja provjera"].map(c => (
+                    {["Čvor", "Uloga", "Host", "Port", "Status", "Latencija", "Failover", "Poslednja provjera"].map(c => (
                       <th key={c} className="text-left px-5 py-3.5 text-xs text-gray-500 font-mono uppercase tracking-wider">{c}</th>
                     ))}
                   </tr>
@@ -110,12 +110,27 @@ export function AdminHealthPage() {
                       <td className="px-5 py-3.5">
                         <span className={`text-xs px-2 py-0.5 rounded font-mono ${node.role === "master" ? "bg-amber-500/10 text-amber-400" : "bg-blue-500/10 text-blue-400"}`}>
                           {node.role}
+                          {node.promoted && " ↑"}
                         </span>
+                        {node.original_role && node.original_role !== node.role && (
+                          <span className="block text-[10px] text-gray-400 mt-0.5">orig: {node.original_role}</span>
+                        )}
                       </td>
                       <td className="px-5 py-3.5 text-xs text-gray-500 font-mono">{node.host}</td>
                       <td className="px-5 py-3.5 text-xs text-gray-500 font-mono">{node.port}</td>
                       <td className="px-5 py-3.5"><NodeBadge status={node.status} /></td>
                       <td className="px-5 py-3.5"><LatencyBar ms={node.latency} /></td>
+                      <td className="px-5 py-3.5 text-xs font-mono">
+                        {node.promoted ? (
+                          <span className="text-amber-600">
+                            {node.failover_at
+                              ? new Date(node.failover_at).toLocaleTimeString("sr-RS")
+                              : "promovisan"}
+                          </span>
+                        ) : (
+                          <span className="text-gray-400">—</span>
+                        )}
+                      </td>
                       <td className="px-5 py-3.5 text-xs text-gray-500 font-mono">
                         {new Date(node.last_check).toLocaleTimeString("sr-RS")}
                       </td>
@@ -123,7 +138,7 @@ export function AdminHealthPage() {
                   ))}
                   {dbNodes.length === 0 && (
                     <tr>
-                      <td colSpan={7} className="px-5 py-8 text-center text-xs text-gray-400">Nema podataka</td>
+                      <td colSpan={8} className="px-5 py-8 text-center text-xs text-gray-400">Nema podataka</td>
                     </tr>
                   )}
                 </tbody>

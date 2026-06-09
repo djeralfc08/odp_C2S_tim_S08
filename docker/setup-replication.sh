@@ -143,6 +143,17 @@ CREATE TABLE team_members (
   KEY idx_tm_user (user_id)
 );
 
+CREATE TABLE team_invitations (
+  team_id    INT UNSIGNED NOT NULL,
+  user_id    INT UNSIGNED NOT NULL,
+  status     ENUM('pending','accepted','rejected') NOT NULL DEFAULT 'pending',
+  created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (team_id, user_id),
+  CONSTRAINT fk_ti_team FOREIGN KEY (team_id) REFERENCES teams(id) ON DELETE CASCADE,
+  CONSTRAINT fk_ti_user FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+  KEY idx_ti_user (user_id)
+);
+
 CREATE TABLE tournament_registrations (
   tournament_id  INT UNSIGNED NOT NULL,
   team_id        INT UNSIGNED NOT NULL,

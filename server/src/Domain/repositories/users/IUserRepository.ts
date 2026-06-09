@@ -11,4 +11,5 @@ export interface IUserRepository {
   update(user: User): Promise<boolean>;
   deactivate(id: number): Promise<boolean>;
   updateRole(id: number, role: string): Promise<boolean>;
+  updateProfile(id: number, fullName: string, profileImage: string | null): Promise<boolean>;
 }

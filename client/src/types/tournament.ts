@@ -1,5 +1,11 @@
 export type TournamentFormat = 'single_elimination' | 'double_elimination' | 'round_robin';
-export type TournamentStatus = 'upcoming' | 'registration' | 'ongoing' | 'completed' | 'cancelled';
+export type TournamentStatus =
+  | 'draft'
+  | 'registration_open'
+  | 'registration_locked'
+  | 'in_progress'
+  | 'completed'
+  | 'cancelled';
 export type RegistrationStatus = 'pending' | 'confirmed' | 'disqualified';
 
 export interface Tournament {
@@ -11,7 +17,7 @@ export interface Tournament {
   format: TournamentFormat;
   max_teams: number;
   registration_deadline: string;
-  start_date: string;
+  starts_at: string;
   prize_pool: string | null;
   status: TournamentStatus;
   created_by: number;
@@ -39,8 +45,8 @@ export interface CreateTournamentDto {
   format: TournamentFormat;
   max_teams: number;
   registration_deadline: string;
-  start_date: string;
+  starts_at: string;
   prize_pool?: string;
 }
 
-export type UpdateTournamentDto = Partial<CreateTournamentDto>;
+export type UpdateTournamentDto = Partial<CreateTournamentDto> & { status?: TournamentStatus };

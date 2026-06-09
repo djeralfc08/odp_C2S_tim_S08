@@ -61,8 +61,8 @@ export class MatchRepository implements IMatchRepository {
       );
 
       return rows.map((r) => this.map(r));
-    } catch (err) {
-      this.logger.error("MatchRepository", "findByTournamentId failed", err);
+    } catch {
+      this.logger.error("MatchRepository", "findByTournamentId failed");
       return [];
     } finally {
       res.conn.release();
@@ -100,8 +100,8 @@ export class MatchRepository implements IMatchRepository {
       );
 
       return rows.length > 0 ? this.map(rows[0]) : null;
-    } catch (err) {
-      this.logger.error("MatchRepository", "findById failed", err);
+    } catch {
+      this.logger.error("MatchRepository", "findById failed");
       return null;
     } finally {
       res.conn.release();
@@ -127,8 +127,8 @@ export class MatchRepository implements IMatchRepository {
       );
 
       return rows as MatchPlayerDto[];
-    } catch (err) {
-      this.logger.error("MatchRepository", "findPlayersByMatchId failed", err);
+    } catch {
+      this.logger.error("MatchRepository", "findPlayersByMatchId failed");
       return [];
     } finally {
       res.conn.release();
@@ -167,8 +167,8 @@ export class MatchRepository implements IMatchRepository {
       );
 
       return rows.map((r) => this.map(r));
-    } catch (err) {
-      this.logger.error("MatchRepository", "findByUserId failed", err);
+    } catch {
+      this.logger.error("MatchRepository", "findByUserId failed");
       return [];
     } finally {
       res.conn.release();
@@ -188,8 +188,8 @@ export class MatchRepository implements IMatchRepository {
       );
 
       return result.affectedRows > 0;
-    } catch (err) {
-      this.logger.error("MatchRepository", "updateResult failed", err);
+    } catch {
+      this.logger.error("MatchRepository", "updateResult failed");
       return false;
     } finally {
       res.conn.release();
@@ -209,8 +209,8 @@ export class MatchRepository implements IMatchRepository {
       );
 
       return result.affectedRows > 0;
-    } catch (err) {
-      this.logger.error("MatchRepository", "addPlayer failed", err);
+    } catch {
+      this.logger.error("MatchRepository", "addPlayer failed");
       return false;
     } finally {
       res.conn.release();
@@ -230,8 +230,8 @@ export class MatchRepository implements IMatchRepository {
       );
 
       return result.affectedRows > 0;
-    } catch (err) {
-      this.logger.error("MatchRepository", "updatePlayerNotes failed", err);
+    } catch {
+      this.logger.error("MatchRepository", "updatePlayerNotes failed");
       return false;
     } finally {
       res.conn.release();
@@ -250,8 +250,8 @@ export class MatchRepository implements IMatchRepository {
       );
 
       return result.affectedRows > 0;
-    } catch (err) {
-      this.logger.error("MatchRepository", "removePlayer failed", err);
+    } catch {
+      this.logger.error("MatchRepository", "removePlayer failed");
       return false;
     } finally {
       res.conn.release();
@@ -291,8 +291,8 @@ export class MatchRepository implements IMatchRepository {
     );
 
     return rows.length > 0 ? this.map(rows[0]) : null;
-  } catch (err) {
-    this.logger.error("MatchRepository", "findNextMatch failed", err);
+  } catch {
+    this.logger.error("MatchRepository", "findNextMatch failed");
     return null;
   } finally {
     res.conn.release();
@@ -314,8 +314,8 @@ async advanceWinnerToNextMatch(nextMatchId: number, winnerId: number, slot: "tea
     );
 
     return result.affectedRows > 0;
-  } catch (err) {
-    this.logger.error("MatchRepository", "advanceWinnerToNextMatch failed", err);
+  } catch {
+    this.logger.error("MatchRepository", "advanceWinnerToNextMatch failed");
     return false;
   } finally {
     res.conn.release();
@@ -338,8 +338,8 @@ async isUserCaptainOfTeam(userId: number, teamId: number): Promise<boolean> {
     );
 
     return rows.length > 0;
-  } catch (err) {
-    this.logger.error("MatchRepository", "isUserCaptainOfTeam failed", err);
+  } catch {
+    this.logger.error("MatchRepository", "isUserCaptainOfTeam failed");
     return false;
   } finally {
     res.conn.release();
@@ -359,8 +359,8 @@ async isUserCaptainOfTeam(userId: number, teamId: number): Promise<boolean> {
     );
 
     return true;
-  } catch (err) {
-    this.logger.error("MatchRepository", "deleteByTournamentId failed", err);
+  } catch {
+    this.logger.error("MatchRepository", "deleteByTournamentId failed");
     return false;
   } finally {
     res.conn.release();
@@ -380,8 +380,8 @@ async createBracketMatch(tournamentId: number, round: number, matchNumber: numbe
     );
 
     return result.affectedRows > 0;
-  } catch (err) {
-    this.logger.error("MatchRepository", "createBracketMatch failed", err);
+  } catch {
+    this.logger.error("MatchRepository", "createBracketMatch failed");
     return false;
   } finally {
     res.conn.release();

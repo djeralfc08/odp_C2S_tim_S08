@@ -64,7 +64,7 @@ async function start(): Promise<void> {
   });
 }
 
-start().catch((err) => logger.error("Gateway", "Fatal startup error", err));
+start().catch((err: Error) => logger.error("Gateway", "Fatal startup error", err));
 
 process.on("SIGINT", () => {
   loadBalancer.stop();

@@ -1,6 +1,7 @@
 import { ValidationResult } from "../../../Domain/types/ValidationResult";
 import { UpdateTournamentDto } from "../../../Domain/DTOs/tournament/CreateTournamentDto";
 import { TournamentFormat } from "../../../Domain/enums/TournamentFormat";
+import { TournamentStatus } from "../../../Domain/enums/TournamentStatus";
 import {
   validateTournamentDates,
   validateTournamentFormat,
@@ -62,6 +63,13 @@ export const validateUpdateTournament = (
   }
 
   if (body.prize_pool !== undefined) dto.prize_pool = body.prize_pool;
+
+  if (body.status !== undefined) {
+    if (!Object.values(TournamentStatus).includes(body.status as TournamentStatus)) {
+      return { valid: false, message: "Nevažeći status turnira" };
+    }
+    dto.status = body.status;
+  }
 
   if (Object.keys(dto).length === 0) {
     return { valid: false, message: "No fields to update" };

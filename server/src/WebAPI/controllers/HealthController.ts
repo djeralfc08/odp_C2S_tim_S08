@@ -46,7 +46,10 @@ export class HealthController {
       status: n.status,
       latency: n.latencyMs,
       last_check: n.lastCheck.toISOString(),
-      role: n.name === "master" ? "master" : "slave",
+      role: n.name === "master" || n.name === "master-original" ? "master" : "slave",
+      promoted: n.promoted,
+      original_role: n.originalRole,
+      failover_at: n.failoverAt ? n.failoverAt.toISOString() : null,
     }));
     res.status(200).json({ success: true, data });
   }

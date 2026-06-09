@@ -2,6 +2,7 @@ import { IUserService } from "../../Domain/services/users/IUserService";
 import { IUserRepository } from "../../Domain/repositories/users/IUserRepository";
 import { UserDto } from "../../Domain/DTOs/users/UserDto";
 import { PublicUserDto } from "../../Domain/DTOs/users/PublicUserDto";
+import { ProfileDto } from "../../Domain/DTOs/users/ProfileDto";
 import { UserRole } from "../../Domain/enums/UserRole";
 
 export class UserService implements IUserService {
@@ -16,6 +17,20 @@ export class UserService implements IUserService {
     const u = await this.userRepo.findById(id);
     if (u.id === 0) return null;
     return new UserDto(u.id, u.username, u.email, u.role, u.isActive);
+  }
+
+  async getProfile(id: number): Promise<ProfileDto | null> {
+    const u = await this.userRepo.findById(id);
+    if (u.id === 0) return null;
+    return new ProfileDto(
+      u.id,
+      u.username,
+      u.email,
+      u.role,
+      u.isActive,
+      u.fullName || null,
+      u.profileImage,
+    );
   }
 
   async getPublicProfile(id: number): Promise<PublicUserDto | null> {
@@ -37,4 +52,14 @@ export class UserService implements IUserService {
 
   return await this.userRepo.updateRole(id, role);
 }
+
+  async updateProfile(id: number, realName?: string, avatarUrl?: string | null): Promise<boolean> {
+    const user = await this.userRepo.findById(id);
+    if (user.id === 0) return false;
+
+    const fullName = realName !== undefined ? realName : user.fullName;
+    const profileImage = avatarUrl !== undefined ? avatarUrl : user.profileImage;
+
+    return this.userRepo.updateProfile(id, fullName, profileImage);
+  }
 }

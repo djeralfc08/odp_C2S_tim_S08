@@ -43,6 +43,10 @@ export function StatusBadge({ status }: { status: string }) {
     cancelled:     "bg-red-50 text-red-600 border-red-200",
     upcoming:      "bg-violet-50 text-violet-700 border-violet-200",
     registration:  "bg-teal-50 text-teal-700 border-teal-200",
+    registration_open: "bg-teal-50 text-teal-700 border-teal-200",
+    draft:                "bg-gray-100 text-gray-600 border-gray-200",
+    registration_locked:  "bg-amber-50 text-amber-700 border-amber-200",
+    in_progress:          "bg-blue-50 text-blue-700 border-blue-200",
     ongoing:       "bg-blue-50 text-blue-700 border-blue-200",
     confirmed:     "bg-emerald-50 text-emerald-700 border-emerald-200",
     disqualified:  "bg-red-50 text-red-600 border-red-200",
@@ -51,12 +55,16 @@ export function StatusBadge({ status }: { status: string }) {
   const dot: Record<string, string> = {
     pending: "bg-amber-400", active: "bg-blue-500 animate-pulse", completed: "bg-emerald-500",
     cancelled: "bg-red-400", upcoming: "bg-violet-500", registration: "bg-teal-500 animate-pulse",
+    registration_open: "bg-teal-500 animate-pulse",
+    draft: "bg-gray-400", registration_locked: "bg-amber-400", in_progress: "bg-blue-500 animate-pulse",
     ongoing: "bg-blue-500 animate-pulse", confirmed: "bg-emerald-500", disqualified: "bg-red-400",
     scheduled: "bg-gray-400",
   };
   const labels: Record<string, string> = {
     pending: "Na čekanju", active: "Aktivan", completed: "Završen", cancelled: "Otkazan",
-    upcoming: "Predstojeći", registration: "Registracija", ongoing: "U toku",
+    upcoming: "Predstojeći", registration: "Registracija",
+    registration_open: "Prijave otvorene", draft: "Nacrt",
+    registration_locked: "Prijave zaključane", in_progress: "U toku", ongoing: "U toku",
     confirmed: "Potvrđen", disqualified: "Diskvalifikovan", scheduled: "Zakazan",
   };
   return (

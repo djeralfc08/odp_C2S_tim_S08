@@ -37,7 +37,6 @@ export class AuthController {
     const result = await this.authService.register(
       gamerTag,
       body.email!.trim(),
-      body.role ?? "user",
       body.password!,
       body.full_name?.trim(),
       body.profile_image ?? null,

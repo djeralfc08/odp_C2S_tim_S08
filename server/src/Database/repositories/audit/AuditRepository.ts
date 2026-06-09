@@ -37,8 +37,8 @@ export class AuditRepository implements IAuditRepository {
             new Date(r.created_at)
           )
       );
-    } catch (err) {
-      this.logger.error("AuditRepository", "findAll failed", err);
+    } catch {
+      this.logger.error("AuditRepository", "findAll failed");
       return [];
     } finally {
       res.conn.release();
@@ -56,8 +56,8 @@ export class AuditRepository implements IAuditRepository {
         [log.userId, log.action, log.entity, log.entityId, log.details],
       );
       return result.affectedRows > 0;
-    } catch (err) {
-      this.logger.error("AuditRepository", "create failed", err);
+    } catch {
+      this.logger.error("AuditRepository", "create failed");
       return false;
     } finally {
       res.conn.release();

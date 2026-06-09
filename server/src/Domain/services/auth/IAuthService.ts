@@ -5,7 +5,6 @@ export interface IAuthService {
   register(
     username: string,
     email: string,
-    role: string,
     password: string,
     fullName?: string,
     profileImage?: string | null,

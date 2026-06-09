@@ -9,6 +9,9 @@ export interface DbNodeHealth {
   latency: number | null;
   last_check: string;
   role: DbNodeRole;
+  promoted?: boolean;
+  original_role?: DbNodeRole;
+  failover_at?: string | null;
 }
 
 export interface ApiNodeHealth {

@@ -182,17 +182,13 @@ export class TournamentController {
       return;
     }
 
-    const ok = await this.registrationService.register(
+    const result = await this.registrationService.register(
       idCheck.value!,
       bodyCheck.teamId!,
       req.user!.id,
     );
-    if (!ok) {
-      res.status(409).json({
-        success: false,
-        message:
-          "Registration failed (not captain, tournament closed, full, deadline passed, or already registered)",
-      });
+    if (!result.success) {
+      res.status(409).json({ success: false, message: result.message });
       return;
     }
     res.status(200).json({ success: true });

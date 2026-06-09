@@ -33,8 +33,8 @@ export class GameRepository implements IGameRepository {
         [id],
       );
       return rows.length > 0 ? this.map(rows[0]) : null;
-    } catch (err) {
-      this.logger.error("GameRepository", "findById failed", err);
+    } catch {
+      this.logger.error("GameRepository", "findById failed");
       return null;
     } finally {
       res.conn.release();
@@ -51,8 +51,8 @@ export class GameRepository implements IGameRepository {
         [name.trim()],
       );
       return rows.length > 0 ? this.map(rows[0]) : null;
-    } catch (err) {
-      this.logger.error("GameRepository", "findByName failed", err);
+    } catch {
+      this.logger.error("GameRepository", "findByName failed");
       return null;
     } finally {
       res.conn.release();
@@ -78,8 +78,8 @@ export class GameRepository implements IGameRepository {
         game: this.map(r),
         activeTournamentsCount: Number(r.active_tournaments_count ?? 0),
       }));
-    } catch (err) {
-      this.logger.error("GameRepository", "findAll failed", err);
+    } catch {
+      this.logger.error("GameRepository", "findAll failed");
       return [];
     } finally {
       res.conn.release();
@@ -109,8 +109,8 @@ export class GameRepository implements IGameRepository {
         genre,
         dto.max_team_size,
       );
-    } catch (err) {
-      this.logger.error("GameRepository", "create failed", err);
+    } catch {
+      this.logger.error("GameRepository", "create failed");
       return new Game();
     } finally {
       res.conn.release();
@@ -149,8 +149,8 @@ export class GameRepository implements IGameRepository {
         [...values, id],
       );
       return result.affectedRows > 0;
-    } catch (err) {
-      this.logger.error("GameRepository", "update failed", err);
+    } catch {
+      this.logger.error("GameRepository", "update failed");
       return false;
     } finally {
       res.conn.release();
@@ -167,8 +167,8 @@ export class GameRepository implements IGameRepository {
         [id],
       );
       return result.affectedRows > 0;
-    } catch (err) {
-      this.logger.error("GameRepository", "delete failed", err);
+    } catch {
+      this.logger.error("GameRepository", "delete failed");
       return false;
     } finally {
       res.conn.release();

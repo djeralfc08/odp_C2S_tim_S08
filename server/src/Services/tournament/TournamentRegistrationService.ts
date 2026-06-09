@@ -1,8 +1,10 @@
-import { ITournamentRegistrationService } from "../../Domain/services/tournament/ITournamentRegistrationService";
+import {
+  ITournamentRegistrationService,
+  RegistrationResult,
+} from "../../Domain/services/tournament/ITournamentRegistrationService";
 import { ITournamentRepository } from "../../Domain/repositories/tournament/ITournamentRepository";
 import { ITournamentRegistrationRepository } from "../../Domain/repositories/tournament/ITournamentRegistrationRepository";
 import { ITeamRepository } from "../../Domain/repositories/team/ITeamRepository";
-import { IGameRepository } from "../../Domain/repositories/game/IGameRepository";
 import { TournamentRegistrationDto } from "../../Domain/DTOs/tournament/CreateTournamentDto";
 import { TournamentRegistration } from "../../Domain/models/TournamentRegistration";
 import { TournamentRegistrationStatus } from "../../Domain/enums/TournamentRegistrationStatus";
@@ -16,7 +18,6 @@ export class TournamentRegistrationService implements ITournamentRegistrationSer
     private readonly registrationRepo: ITournamentRegistrationRepository,
     private readonly teamRepo: ITeamRepository,
     private readonly matchRepo: IMatchRepository,
-    private readonly gameRepo: IGameRepository,
   ) {}
 
   async getByTournamentId(tournamentId: number): Promise<TournamentRegistrationDto[]> {
@@ -27,28 +28,38 @@ export class TournamentRegistrationService implements ITournamentRegistrationSer
     return rows.map((r) => this.toDto(r));
   }
 
-  async register(tournamentId: number, teamId: number, userId: number): Promise<boolean> {
+  async register(tournamentId: number, teamId: number, userId: number): Promise<RegistrationResult> {
     const isCaptain = await this.teamRepo.isCaptain(teamId, userId);
-    if (!isCaptain) return false;
+    if (!isCaptain) {
+      return { success: false, message: "Samo kapiten tima može da prijavi tim na turnir." };
+    }
 
     const tournament = await this.tournamentRepo.findById(tournamentId);
-    if (!tournament) return false;
-    if (tournament.status !== TournamentStatus.REGISTRATION_OPEN) return false;
-    if (new Date() > tournament.registrationDeadline) return false;
+    if (!tournament) return { success: false, message: "Turnir nije pronađen." };
+    if (tournament.status !== TournamentStatus.REGISTRATION_OPEN) {
+      return { success: false, message: "Prijave na ovaj turnir nisu otvorene." };
+    }
+    if (new Date() > tournament.registrationDeadline) {
+      return { success: false, message: "Rok za prijavu je istekao." };
+    }
 
     const count = await this.registrationRepo.countByTournamentId(tournamentId);
-    if (count >= tournament.maxTeams) return false;
+    if (count >= tournament.maxTeams) {
+      return { success: false, message: "Turnir je popunjen." };
+    }
 
-    const existing = await this.registrationRepo.findByTournamentAndTeam(tournamentId, teamId);
-    if (existing) return false;
-
-    const game = await this.gameRepo.findById(tournament.gameId);
-    if (!game) return false;
-    const memberCount = await this.teamRepo.countMembersByTeamId(teamId);
-    if (memberCount < game.maxPlayerPerTeam) return false;
+    if (await this.registrationRepo.existsOnWrite(tournamentId, teamId)) {
+      return { success: false, message: "Tim je već prijavljen na ovaj turnir." };
+    }
 
     const created = await this.registrationRepo.create(tournamentId, teamId);
-    return created !== null;
+    if (!created) {
+      if (await this.registrationRepo.existsOnWrite(tournamentId, teamId)) {
+        return { success: true };
+      }
+      return { success: false, message: "Prijava nije uspela. Pokušaj ponovo." };
+    }
+    return { success: true };
   }
 
   async unregister(tournamentId: number, teamId: number): Promise<boolean> {

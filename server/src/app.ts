@@ -57,7 +57,6 @@ const registrationService = new TournamentRegistrationService(
   registrationRepo,
   teamRepo,
   matchRepo,
-  gameRepo,
 );
 const watchlistService = new WatchlistService(watchlistRepo, tournamentRepo, auditService);
 const teamService = new TeamService(teamRepo, auditService);
@@ -79,5 +78,16 @@ app.use(
   "/api/v1",
   new TournamentController(tournamentService, registrationService, watchlistService).getRouter(),
 );
+
+app.use((_req, res) => {
+  res.status(404).json({ success: false, message: "Not found" });
+});
+
+app.use((err: Error, _req: express.Request, res: express.Response, _next: express.NextFunction) => {
+  logger.error("Express", "Unhandled error", err);
+  if (!res.headersSent) {
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+});
 
 export default app;

@@ -1,5 +1,6 @@
 import React, { createContext, useState, type ReactNode } from "react";
 import { jwtDecode } from "jwt-decode";
+import { authApi } from "../../api_services/auth/AuthAPIService";
 import type { AuthContextType } from "../../types/auth/AuthContext";
 import type { AuthUser } from "../../types/auth/AuthUser";
 import type { JwtTokenClaims } from "../../types/auth/JwtTokenClaims";
@@ -60,6 +61,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   const logout = () => {
+    if (token) authApi.logout().catch(() => undefined);
     setToken(null);
     setUser(null);
     localStorage.removeItem(KEY);

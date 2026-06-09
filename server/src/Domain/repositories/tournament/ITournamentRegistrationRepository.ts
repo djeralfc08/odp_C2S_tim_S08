@@ -8,7 +8,8 @@ export interface ITournamentRegistrationRepository {
     teamId: number,
   ): Promise<TournamentRegistration | null>;
   countByTournamentId(tournamentId: number): Promise<number>;
-  create(tournamentId: number, teamId: number): Promise<TournamentRegistration | null>;
+  existsOnWrite(tournamentId: number, teamId: number): Promise<boolean>;
+  create(tournamentId: number, teamId: number): Promise<boolean>;
   delete(tournamentId: number, teamId: number): Promise<boolean>;
   updateStatus(
     tournamentId: number,

@@ -26,7 +26,6 @@ export class AuthService implements IAuthService {
   async register(
     username: string,
     email: string,
-    role: string,
     password: string,
     fullName?: string,
     profileImage?: string | null,
@@ -37,7 +36,7 @@ export class AuthService implements IAuthService {
     if (byEmail.id !== 0) return new AuthUserDto();
     const hash = await bcrypt.hash(password, this.saltRounds).catch(() => "");
     if (!hash) return new AuthUserDto();
-    const userRole = role === UserRole.ADMIN ? UserRole.ADMIN : UserRole.USER;
+    const userRole = UserRole.USER;
     const created = await this.userRepo.create(
       new User(
         0,

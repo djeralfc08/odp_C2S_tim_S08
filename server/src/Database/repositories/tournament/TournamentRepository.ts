@@ -58,8 +58,8 @@ export class TournamentRepository implements ITournamentRepository {
 
     try {
       return await this.fetchById(res.conn, id);
-    } catch (err) {
-      this.logger.error("TournamentRepository", "findById failed", err);
+    } catch {
+      this.logger.error("TournamentRepository", "findById failed");
       return null;
     } finally {
       res.conn.release();
@@ -79,8 +79,8 @@ export class TournamentRepository implements ITournamentRepository {
         [name.trim()],
       );
       return rows.length > 0 ? this.map(rows[0]) : null;
-    } catch (err) {
-      this.logger.error("TournamentRepository", "findByName failed", err);
+    } catch {
+      this.logger.error("TournamentRepository", "findByName failed");
       return null;
     } finally {
       res.conn.release();
@@ -120,8 +120,8 @@ export class TournamentRepository implements ITournamentRepository {
         values,
       );
       return rows.map((r) => this.map(r));
-    } catch (err) {
-      this.logger.error("TournamentRepository", "findAll failed", err);
+    } catch {
+      this.logger.error("TournamentRepository", "findAll failed");
       return [];
     } finally {
       res.conn.release();
@@ -145,7 +145,7 @@ export class TournamentRepository implements ITournamentRepository {
           toMysqlDateTime(dto.registration_deadline),
           toMysqlDateTime(dto.starts_at),
           dto.prize_pool?.trim() || null,
-          TournamentStatus.DRAFT,
+          TournamentStatus.REGISTRATION_OPEN,
         ],
       );
 
@@ -153,8 +153,8 @@ export class TournamentRepository implements ITournamentRepository {
 
       const created = await this.fetchById(res.conn, result.insertId);
       return created ?? new Tournament();
-    } catch (err) {
-      this.logger.error("TournamentRepository", "create failed", err);
+    } catch {
+      this.logger.error("TournamentRepository", "create failed");
       return new Tournament();
     } finally {
       res.conn.release();
@@ -196,6 +196,10 @@ export class TournamentRepository implements ITournamentRepository {
       fields.push("prize_pool = ?");
       values.push(dto.prize_pool?.trim() || null);
     }
+    if (dto.status !== undefined) {
+      fields.push("status = ?");
+      values.push(dto.status);
+    }
 
     if (fields.length === 0) return false;
 
@@ -205,8 +209,8 @@ export class TournamentRepository implements ITournamentRepository {
         [...values, id],
       );
       return result.affectedRows > 0;
-    } catch (err) {
-      this.logger.error("TournamentRepository", "update failed", err);
+    } catch {
+      this.logger.error("TournamentRepository", "update failed");
       return false;
     } finally {
       res.conn.release();
@@ -223,8 +227,8 @@ export class TournamentRepository implements ITournamentRepository {
         [id],
       );
       return result.affectedRows > 0;
-    } catch (err) {
-      this.logger.error("TournamentRepository", "delete failed", err);
+    } catch {
+      this.logger.error("TournamentRepository", "delete failed");
       return false;
     } finally {
       res.conn.release();

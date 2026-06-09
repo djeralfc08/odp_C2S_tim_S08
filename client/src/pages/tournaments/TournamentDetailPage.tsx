@@ -27,6 +27,7 @@ export function TournamentDetailPage() {
   const [showRegModal, setShowRegModal] = useState(false);
   const [selectedTeam, setSelectedTeam] = useState("");
   const [regLoading, setRegLoading] = useState(false);
+  const [regError, setRegError] = useState<string | null>(null);
 
   const tournamentId = parseInt(id ?? "0");
   const { matches, loading: matchesLoading } = useTournamentMatches(tournamentId);
@@ -60,13 +61,28 @@ export function TournamentDetailPage() {
   const handleRegister = async () => {
     if (!selectedTeam) return;
     setRegLoading(true);
+    setRegError(null);
     const res = await tournamentsApi.register(tournamentId, parseInt(selectedTeam));
     if (res.success) {
       showMsg("Tim je uspešno prijavljen na turnir!");
       setShowRegModal(false);
-      tournamentsApi.getById(tournamentId).then(r => { if (r.success && r.data) setTournament(r.data); });
+      setRegError(null);
+      const teamId = parseInt(selectedTeam);
+      setSelectedTeam("");
+      const refresh = async (attempt = 0) => {
+        const r = await tournamentsApi.getById(tournamentId);
+        if (r.success && r.data) {
+          setTournament(r.data);
+          const listed = r.data.registrations?.some(reg => reg.team_id === teamId);
+          if (listed || attempt >= 4) return;
+        }
+        setTimeout(() => void refresh(attempt + 1), 400);
+      };
+      void refresh();
     } else {
-      showMsg(res.message ?? "Greška pri prijavi", "error");
+      const err = res.message ?? "Greška pri prijavi";
+      setRegError(err);
+      showMsg(err, "error");
     }
     setRegLoading(false);
   };
@@ -74,9 +90,9 @@ export function TournamentDetailPage() {
   if (loading) return <div className="flex justify-center py-20"><Spinner size={32} /></div>;
   if (error || !tournament) return <ErrorBox message={error ?? "Turnir nije pronađen"} />;
 
-  const canRegister = user && tournament.status === "registration";
   const deadline = new Date(tournament.registration_deadline);
-  const startDate = new Date(tournament.start_date);
+  const startDate = new Date(tournament.starts_at);
+  const canRegister = !!user && tournament.status === "registration_open" && deadline > new Date();
 
   return (
     <div>
@@ -93,7 +109,7 @@ export function TournamentDetailPage() {
               </Btn>
             )}
             {canRegister && (
-              <Btn onClick={() => setShowRegModal(true)}>Prijavi tim</Btn>
+              <Btn onClick={() => { setRegError(null); setShowRegModal(true); }}>Prijavi tim</Btn>
             )}
           </div>
         }
@@ -175,8 +191,9 @@ export function TournamentDetailPage() {
 
       {/* Register modal */}
       {showRegModal && (
-        <Modal title="Prijavi tim na turnir" onClose={() => setShowRegModal(false)}>
+        <Modal title="Prijavi tim na turnir" onClose={() => { setShowRegModal(false); setRegError(null); }}>
           <div className="space-y-4">
+            {regError && <ErrorBox message={regError} />}
             <Select
               label="Izaberi tim"
               value={selectedTeam}

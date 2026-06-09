@@ -52,8 +52,8 @@ export class UserRepository implements IUserRepository {
         user.role,
         user.passwordHash
       );
-    } catch (err) {
-      this.logger.error("UserRepository", "create failed", err);
+    } catch {
+      this.logger.error("UserRepository", "create failed");
       return new User();
     } finally {
       res.conn.release();
@@ -74,8 +74,8 @@ export class UserRepository implements IUserRepository {
       if (rows.length === 0) return null;
       const r = rows[0];
       return new PublicUserDto(r.id, r.gamer_tag, r.full_name ?? "", r.profile_image ?? null);
-    } catch (err) {
-      this.logger.error("UserRepository", "findPublicById failed", err);
+    } catch {
+      this.logger.error("UserRepository", "findPublicById failed");
       return null;
     } finally {
       res.conn.release();
@@ -93,8 +93,8 @@ export class UserRepository implements IUserRepository {
       );
 
       return rows.length > 0 ? this.map(rows[0]) : new User();
-    } catch (err) {
-      this.logger.error("UserRepository", "findById failed", err);
+    } catch {
+      this.logger.error("UserRepository", "findById failed");
       return new User();
     } finally {
       res.conn.release();
@@ -112,8 +112,8 @@ export class UserRepository implements IUserRepository {
       );
 
       return rows.length > 0 ? this.map(rows[0]) : new User();
-    } catch (err) {
-      this.logger.error("UserRepository", "findByUsername failed", err);
+    } catch {
+      this.logger.error("UserRepository", "findByUsername failed");
       return new User();
     } finally {
       res.conn.release();
@@ -131,8 +131,8 @@ export class UserRepository implements IUserRepository {
       );
 
       return rows.length > 0 ? this.map(rows[0]) : new User();
-    } catch (err) {
-      this.logger.error("UserRepository", "findByEmail failed", err);
+    } catch {
+      this.logger.error("UserRepository", "findByEmail failed");
       return new User();
     } finally {
       res.conn.release();
@@ -149,8 +149,8 @@ export class UserRepository implements IUserRepository {
       );
 
       return rows.map((r) => this.map(r));
-    } catch (err) {
-      this.logger.error("UserRepository", "findAll failed", err);
+    } catch {
+      this.logger.error("UserRepository", "findAll failed");
       return [];
     } finally {
       res.conn.release();
@@ -170,8 +170,8 @@ export class UserRepository implements IUserRepository {
       );
 
       return result.affectedRows > 0;
-    } catch (err) {
-      this.logger.error("UserRepository", "update failed", err);
+    } catch {
+      this.logger.error("UserRepository", "update failed");
       return false;
     } finally {
       res.conn.release();
@@ -189,8 +189,8 @@ export class UserRepository implements IUserRepository {
       );
 
       return result.affectedRows > 0;
-    } catch (err) {
-      this.logger.error("UserRepository", "deactivate failed", err);
+    } catch {
+      this.logger.error("UserRepository", "deactivate failed");
       return false;
     } finally {
       res.conn.release();
@@ -208,8 +208,8 @@ export class UserRepository implements IUserRepository {
       );
 
       return (rows[0]?.cnt ?? 0) > 0;
-    } catch (err) {
-      this.logger.error("UserRepository", "exists failed", err);
+    } catch {
+      this.logger.error("UserRepository", "exists failed");
       return false;
     } finally {
       res.conn.release();
@@ -220,23 +220,42 @@ export class UserRepository implements IUserRepository {
 
 
   async updateRole(id: number, role: string): Promise<boolean> {
-  const res = await this.db.getWriteConnection();
-  if (!res) return false;
+    const res = await this.db.getWriteConnection();
+    if (!res) return false;
 
-  try {
-    const [result] = await res.conn.execute<ResultSetHeader>(
-      `UPDATE users
-       SET role = ?
-       WHERE id = ?`,
-      [role, id]
-    );
+    try {
+      const [result] = await res.conn.execute<ResultSetHeader>(
+        `UPDATE users
+         SET role = ?
+         WHERE id = ?`,
+        [role, id],
+      );
 
-    return result.affectedRows > 0;
-  } catch (err) {
-    this.logger.error("UserRepository", "updateRole failed", err);
-    return false;
-  } finally {
-    res.conn.release();
+      return result.affectedRows > 0;
+    } catch {
+      this.logger.error("UserRepository", "updateRole failed");
+      return false;
+    } finally {
+      res.conn.release();
+    }
   }
-}
+
+  async updateProfile(id: number, fullName: string, profileImage: string | null): Promise<boolean> {
+    const res = await this.db.getWriteConnection();
+    if (!res) return false;
+
+    try {
+      const [result] = await res.conn.execute<ResultSetHeader>(
+        `UPDATE users SET full_name = ?, profile_image = ? WHERE id = ?`,
+        [fullName, profileImage, id],
+      );
+
+      return result.affectedRows > 0;
+    } catch {
+      this.logger.error("UserRepository", "updateProfile failed");
+      return false;
+    } finally {
+      res.conn.release();
+    }
+  }
 }

@@ -37,8 +37,8 @@ export class TournamentRegistrationRepository implements ITournamentRegistration
         [tournamentId],
       );
       return rows.map((r) => this.map(r));
-    } catch (err) {
-      this.logger.error("TournamentRegistrationRepository", "findByTournamentId failed", err);
+    } catch {
+      this.logger.error("TournamentRegistrationRepository", "findByTournamentId failed");
       return [];
     } finally {
       res.conn.release();
@@ -61,8 +61,8 @@ export class TournamentRegistrationRepository implements ITournamentRegistration
         [tournamentId, teamId],
       );
       return rows.length > 0 ? this.map(rows[0]) : null;
-    } catch (err) {
-      this.logger.error("TournamentRegistrationRepository", "findByTournamentAndTeam failed", err);
+    } catch {
+      this.logger.error("TournamentRegistrationRepository", "findByTournamentAndTeam failed");
       return null;
     } finally {
       res.conn.release();
@@ -79,28 +79,54 @@ export class TournamentRegistrationRepository implements ITournamentRegistration
         [tournamentId],
       );
       return Number(rows[0]?.cnt ?? 0);
-    } catch (err) {
-      this.logger.error("TournamentRegistrationRepository", "countByTournamentId failed", err);
+    } catch {
+      this.logger.error("TournamentRegistrationRepository", "countByTournamentId failed");
       return 0;
     } finally {
       res.conn.release();
     }
   }
 
-  async create(tournamentId: number, teamId: number): Promise<TournamentRegistration | null> {
+  async existsOnWrite(tournamentId: number, teamId: number): Promise<boolean> {
     const res = await this.db.getWriteConnection();
-    if (!res) return null;
+    if (!res) return false;
 
     try {
-      await res.conn.execute<ResultSetHeader>(
+      const [rows] = await res.conn.execute<RowDataPacket[]>(
+        `SELECT 1 FROM tournament_registrations
+         WHERE tournament_id = ? AND team_id = ?
+         LIMIT 1`,
+        [tournamentId, teamId],
+      );
+      return rows.length > 0;
+    } catch {
+      this.logger.error("TournamentRegistrationRepository", "existsOnWrite failed");
+      return false;
+    } finally {
+      res.conn.release();
+    }
+  }
+
+  private isDuplicateEntry(err: unknown): boolean {
+    const e = err as { code?: string; errno?: number };
+    return e.code === "ER_DUP_ENTRY" || e.errno === 1062;
+  }
+
+  async create(tournamentId: number, teamId: number): Promise<boolean> {
+    const res = await this.db.getWriteConnection();
+    if (!res) return false;
+
+    try {
+      const [result] = await res.conn.execute<ResultSetHeader>(
         `INSERT INTO tournament_registrations (tournament_id, team_id, status)
          VALUES (?, ?, ?)`,
         [tournamentId, teamId, TournamentRegistrationStatus.PENDING],
       );
-      return this.findByTournamentAndTeam(tournamentId, teamId);
+      return result.affectedRows > 0;
     } catch (err) {
-      this.logger.error("TournamentRegistrationRepository", "create failed", err);
-      return null;
+      if (this.isDuplicateEntry(err)) return true;
+      this.logger.error("TournamentRegistrationRepository", "create failed");
+      return false;
     } finally {
       res.conn.release();
     }
@@ -116,8 +142,8 @@ export class TournamentRegistrationRepository implements ITournamentRegistration
         [tournamentId, teamId],
       );
       return result.affectedRows > 0;
-    } catch (err) {
-      this.logger.error("TournamentRegistrationRepository", "delete failed", err);
+    } catch {
+      this.logger.error("TournamentRegistrationRepository", "delete failed");
       return false;
     } finally {
       res.conn.release();
@@ -139,8 +165,8 @@ export class TournamentRegistrationRepository implements ITournamentRegistration
         [status, tournamentId, teamId],
       );
       return result.affectedRows > 0;
-    } catch (err) {
-      this.logger.error("TournamentRegistrationRepository", "updateStatus failed", err);
+    } catch {
+      this.logger.error("TournamentRegistrationRepository", "updateStatus failed");
       return false;
     } finally {
       res.conn.release();

@@ -37,9 +37,8 @@ export class TeamRepository implements ITeamRepository {
       );
 
       return rows.length > 0 ? this.map(rows[0]) : new Team();
-    }catch(err)
-    {
-      this.logger.error("TeamRepository","findById failed", err);
+    } catch {
+      this.logger.error("TeamRepository","findById failed");
       return new Team();
 
     }finally{
@@ -58,9 +57,8 @@ export class TeamRepository implements ITeamRepository {
       );
 
       return rows.map((r) => this.map(r));
-    }catch(err)
-    {
-      this.logger.error("TeamRepository","findAll failed",err);
+    } catch {
+      this.logger.error("TeamRepository","findAll failed");
       return [];
     }finally{
       res.conn.release();
@@ -80,9 +78,8 @@ export class TeamRepository implements ITeamRepository {
       );
 
       return (rows[0]?.cnt ?? 0) > 0;
-    }catch(err)
-    {
-      this.logger.error("TeamRepository", "exists failed", err);
+    } catch {
+      this.logger.error("TeamRepository", "exists failed");
       return false;
       
     }finally{
@@ -115,9 +112,8 @@ export class TeamRepository implements ITeamRepository {
         team.logoUrl,
         team.description
       );
-    }catch(err)
-    {
-      this.logger.error("TeamRepository","create failed",err);
+    } catch {
+      this.logger.error("TeamRepository","create failed");
       return new Team();
     }finally{
       res.conn.release();
@@ -137,9 +133,8 @@ export class TeamRepository implements ITeamRepository {
       );
 
       return result.affectedRows > 0;
-    }catch(err)
-    {
-      this.logger.error("TeamRepository", "update failed",err);
+    } catch {
+      this.logger.error("TeamRepository", "update failed");
       return false;
     }finally{
       res.conn.release();
@@ -158,9 +153,8 @@ export class TeamRepository implements ITeamRepository {
       );
 
       return result.affectedRows > 0;
-    }catch(err)
-    {
-      this.logger.error("TeamRepository","delete failed",err);
+    } catch {
+      this.logger.error("TeamRepository","delete failed");
       return false;
     }finally{
       res.conn.release();
@@ -180,8 +174,8 @@ export class TeamRepository implements ITeamRepository {
         [teamId, userId],
       );
       return rows.length > 0;
-    } catch (err) {
-      this.logger.error("TeamRepository", "isCaptain failed", err);
+    } catch {
+      this.logger.error("TeamRepository", "isCaptain failed");
       return false;
     } finally {
       res.conn.release();
@@ -201,9 +195,8 @@ export class TeamRepository implements ITeamRepository {
       );
 
       return result.affectedRows > 0;
-    }catch(err)
-    {
-      this.logger.error("TeamRepository", "addCaptian failed", err);
+    } catch {
+      this.logger.error("TeamRepository", "addCaptian failed");
       return false;
     }finally{
       res.conn.release();
@@ -225,8 +218,8 @@ export class TeamRepository implements ITeamRepository {
         [teamId, userId],
       );
       return rows.length > 0;
-    } catch (err) {
-      this.logger.error("TeamRepository", "isMember failed", err);
+    } catch {
+      this.logger.error("TeamRepository", "isMember failed");
       return false;
     } finally {
       res.conn.release();
@@ -246,9 +239,8 @@ export class TeamRepository implements ITeamRepository {
       );
 
       return result.affectedRows > 0;
-    }catch(err)
-    {
-      this.logger.error("TeamRepository", "addMember failed", err);
+    } catch {
+      this.logger.error("TeamRepository", "addMember failed");
       return false;
     }finally{
       res.conn.release();
@@ -269,9 +261,8 @@ export class TeamRepository implements ITeamRepository {
       );
 
       return result.affectedRows > 0;
-    }catch(err)
-    {
-      this.logger.error("TeasmRepository", "removeMember failed", err);
+    } catch {
+      this.logger.error("TeasmRepository", "removeMember failed");
       return false;
     }finally{
       res.conn.release();
@@ -292,9 +283,8 @@ export class TeamRepository implements ITeamRepository {
       );
 
       return result.affectedRows > 0;
-    }catch(err)
-    {
-      this.logger.error("TeamRepository", "changeMemberRole failed",err);
+    } catch {
+      this.logger.error("TeamRepository", "changeMemberRole failed");
       return false;
     }finally{
       res.conn.release();
@@ -315,8 +305,8 @@ export class TeamRepository implements ITeamRepository {
       );
 
       return result.affectedRows > 0;
-    } catch (err) {
-      this.logger.error("TeamRepository", "sendInvitation failed", err);
+    } catch {
+      this.logger.error("TeamRepository", "sendInvitation failed");
       return false;
     } finally {
       res.conn.release();
@@ -339,8 +329,8 @@ export class TeamRepository implements ITeamRepository {
     );
 
     return result.affectedRows > 0;
-  } catch (err) {
-    this.logger.error("TeamRepository", "respondInvitation failed", err);
+  } catch {
+    this.logger.error("TeamRepository", "respondInvitation failed");
     return false;
   } finally {
     res.conn.release();
@@ -362,8 +352,8 @@ async findUserIdByGamerTag(gamerTag: string): Promise<number | null> {
     );
 
     return rows.length > 0 ? rows[0].id : null;
-  } catch (err) {
-    this.logger.error("TeamRepository", "findUserIdByGamerTag failed", err);
+  } catch {
+    this.logger.error("TeamRepository", "findUserIdByGamerTag failed");
     return null;
   } finally {
     res.conn.release();
@@ -391,8 +381,8 @@ async findMembersByTeamId(teamId: number): Promise<TeamMemberDto[]> {
     );
 
     return rows as TeamMemberDto[];
-  } catch (err) {
-    this.logger.error("TeamRepository", "findMembersByTeamId failed", err);
+  } catch {
+    this.logger.error("TeamRepository", "findMembersByTeamId failed");
     return [];
   } finally {
     res.conn.release();
@@ -409,8 +399,8 @@ async findMembersByTeamId(teamId: number): Promise<TeamMemberDto[]> {
         [teamId],
       );
       return Number(rows[0]?.cnt ?? 0);
-    } catch (err) {
-      this.logger.error("TeamRepository", "countMembersByTeamId failed", err);
+    } catch {
+      this.logger.error("TeamRepository", "countMembersByTeamId failed");
       return 0;
     } finally {
       res.conn.release();
@@ -431,8 +421,8 @@ async findMembersByTeamId(teamId: number): Promise<TeamMemberDto[]> {
     );
 
     return rows.map((r) => this.map(r));
-  } catch (err) {
-    this.logger.error("TeamRepository", "findByUserId failed", err);
+  } catch {
+    this.logger.error("TeamRepository", "findByUserId failed");
     return [];
   } finally {
     res.conn.release();
